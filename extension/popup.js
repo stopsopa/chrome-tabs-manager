@@ -54,12 +54,54 @@ async function renderWindows() {
         // No Header - Tabs directly in the card container
         // We append tabs first, then actions at the end
 
+        // Drag and Drop: Window Card as Drop Target
+        windowCard.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow dropping
+            windowCard.classList.add('drag-over');
+        });
+
+        windowCard.addEventListener('dragleave', () => {
+            windowCard.classList.remove('drag-over');
+        });
+
+        windowCard.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            windowCard.classList.remove('drag-over');
+            
+            const tabId = parseInt(e.dataTransfer.getData('text/plain'));
+            const targetWindowId = win.id;
+            
+            if (tabId) {
+                try {
+                    // Move tab to new window
+                    await chrome.tabs.move(tabId, { windowId: targetWindowId, index: -1 });
+                    // Refresh UI
+                    renderWindows();
+                } catch (err) {
+                    console.error('Failed to move tab:', err);
+                }
+            }
+        });
+
         win.tabs.forEach(tab => {
             const tabItem = document.createElement('div');
             tabItem.className = 'tab-item';
             // tabItem.title = tab.title; // Remove default browser tooltip
             tabItem.dataset.url = tab.url;
             tabItem.dataset.tabId = tab.id;
+            
+            // Make Draggable
+            tabItem.draggable = true;
+            tabItem.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', tab.id);
+                tabItem.classList.add('dragging');
+                // Hide tooltip while dragging
+                globalTooltip.style.display = 'none';
+            });
+            
+            tabItem.addEventListener('dragend', () => {
+                tabItem.classList.remove('dragging');
+            });
             
             // Check for duplicates
             if (urlCounts.get(tab.url) > 1) {

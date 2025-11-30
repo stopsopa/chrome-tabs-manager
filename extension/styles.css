@@ -121,6 +121,16 @@ header {
     max-width: 100%; /* Prevent overflow if too many tabs */
 }
 
+.window-card.drag-over {
+    background-color: var(--highlight-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.tab-item.dragging {
+    opacity: 0.5;
+}
+
 .window-card:hover {
     box-shadow: var(--shadow-md);
 }
