@@ -13,7 +13,13 @@
   <body>
     <div class="app-container">
       <header>
-        <h1>Tabs Manager</h1>
+        <div class="search-bar">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Start typing to search tabs..."
+          />
+        </div>
         <div class="header-controls">
           <button id="open-settings" class="icon-btn" title="Settings">
             <svg
@@ -32,14 +38,6 @@
           </button>
         </div>
       </header>
-
-      <div class="search-bar">
-        <input
-          type="text"
-          id="search-input"
-          placeholder="Start typing to search tabs..."
-        />
-      </div>
 
       <div id="windows-container" class="windows-grid">
         <!-- Windows will be injected here -->

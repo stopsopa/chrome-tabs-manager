@@ -206,18 +206,25 @@ function filterTabs(query) {
     const windowCards = document.querySelectorAll('.window-card');
     windowCards.forEach(card => {
         const tabs = card.querySelectorAll('.tab-item');
-        let hasMatch = false;
         tabs.forEach(tab => {
+            // Always ensure tab is visible
+            tab.style.display = 'flex';
+            
+            if (!query) {
+                tab.classList.remove('search-match');
+                return;
+            }
+
             const title = tab.title.toLowerCase();
             const url = tab.dataset.url.toLowerCase();
             if (title.includes(query) || url.includes(query)) {
-                tab.style.display = 'flex';
-                hasMatch = true;
+                tab.classList.add('search-match');
             } else {
-                tab.style.display = 'none';
+                tab.classList.remove('search-match');
             }
         });
-        card.style.display = hasMatch ? 'flex' : 'none';
+        // Always show the card
+        card.style.display = 'flex';
     });
 }
 

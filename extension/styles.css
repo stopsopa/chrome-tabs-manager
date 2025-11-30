@@ -56,13 +56,11 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 8px; /* Increased margin slightly */
+    gap: 8px; /* Gap between search and settings */
 }
 
-h1 {
-    font-size: 16px;
-    font-weight: 600;
-}
+/* h1 removed */
 
 .icon-btn {
     background: none;
@@ -72,11 +70,16 @@ h1 {
     padding: 4px;
     border-radius: 4px;
     transition: all 0.2s;
+    display: flex; /* Ensure icon centers */
 }
 
 .icon-btn:hover {
     background-color: rgba(0,0,0,0.05);
     color: var(--text-primary);
+}
+
+.search-bar {
+    flex-grow: 1; /* Take up available space */
 }
 
 .search-bar input {
@@ -159,6 +162,12 @@ h1 {
     box-shadow: 0 0 0 1px var(--highlight-border);
 }
 
+.tab-item.search-match {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+    z-index: 5;
+}
+
 /* Action buttons styled as icons within the grid */
 .action-btn {
     width: 24px;
@@ -200,9 +209,9 @@ h1 {
 /* Global Floating Tooltip */
 .global-tooltip {
     position: absolute;
-    background-color: rgba(31, 41, 55, 0.85); /* Semi-transparent dark bg */
+    background-color: rgba(31, 41, 55, 0.3); /* 30% opacity */
     backdrop-filter: blur(4px); /* blur for better readability */
-    color: white;
+    color: black;
     padding: 6px 12px;
     font-size: 13px;
     font-weight: 500;
