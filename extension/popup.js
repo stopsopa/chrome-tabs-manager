@@ -97,10 +97,17 @@ async function renderWindows() {
                 tabItem.classList.add('dragging');
                 // Hide tooltip while dragging
                 globalTooltip.style.display = 'none';
+                closeContextMenu(); // Close any open menu
             });
             
             tabItem.addEventListener('dragend', () => {
                 tabItem.classList.remove('dragging');
+            });
+
+            // Context Menu (Right Click)
+            tabItem.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e.clientX, e.clientY, tab.id, win.id);
             });
             
             // Check for duplicates
@@ -145,11 +152,9 @@ async function renderWindows() {
                 globalTooltip.style.maxWidth = `${viewportWidth - 24}px`; // 24px total padding/margin safety
                 
                 // Check for overflow
-                // We need to check if the text span is wider than the computed content box of the tooltip
                 const textWidth = span.scrollWidth;
                 const tooltipClientWidth = globalTooltip.clientWidth; // This will be <= max-width
                 
-                // If text is wider than the container (which is capped at max-width), marquee it
                 // We compare with a small buffer to avoid subpixel issues
                 if (textWidth > tooltipClientWidth) {
                     const offset = tooltipClientWidth - textWidth - 24; // Extra buffer for marquee to scroll fully
@@ -229,6 +234,72 @@ async function renderWindows() {
 
         windowsContainer.appendChild(windowCard);
     });
+}
+
+    // Close context menu on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.context-menu')) {
+            closeContextMenu();
+        }
+    });
+
+
+
+// Context Menu Logic
+let activeContextMenu = null;
+
+function closeContextMenu() {
+    if (activeContextMenu) {
+        activeContextMenu.remove();
+        activeContextMenu = null;
+    }
+}
+
+function showContextMenu(x, y, tabId, windowId) {
+    closeContextMenu();
+
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+
+    // Delete Button (Trash)
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'context-menu-btn delete';
+    deleteBtn.title = 'Close Tab';
+    deleteBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+    deleteBtn.addEventListener('click', async () => {
+        try {
+            await chrome.tabs.remove(tabId);
+            closeContextMenu();
+            renderWindows(); // Refresh UI
+        } catch (err) {
+            console.error('Failed to close tab:', err);
+        }
+    });
+
+    // Dismiss Button (X)
+    const dismissBtn = document.createElement('button');
+    dismissBtn.className = 'context-menu-btn';
+    dismissBtn.title = 'Dismiss';
+    dismissBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+    dismissBtn.addEventListener('click', () => {
+        closeContextMenu();
+    });
+
+    menu.appendChild(deleteBtn);
+    menu.appendChild(dismissBtn);
+    document.body.appendChild(menu);
+    activeContextMenu = menu;
+    
+    // Adjust position if off-screen
+    const rect = menu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) {
+        menu.style.left = `${window.innerWidth - rect.width - 4}px`;
+    }
+    if (rect.bottom > window.innerHeight) {
+        menu.style.top = `${window.innerHeight - rect.height - 4}px`;
+    }
 }
 
 function highlightDuplicates(url, active) {

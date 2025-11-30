@@ -251,7 +251,41 @@ header {
     to { transform: translateX(var(--scroll-offset)); }
 }
 
-/* Modal for saving */
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: var(--shadow-lg);
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+    z-index: 9999;
+}
+
+.context-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.context-menu-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+}
+
+.context-menu-btn.delete:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
 .modal {
     position: fixed;
     top: 0;
