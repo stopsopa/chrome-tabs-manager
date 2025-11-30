@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome Tabs Manager",
+  "version": "1.0",
+  "description": "Organize tabs by window, highlight duplicates, and save groups to bookmarks.",
+  "permissions": ["tabs", "windows", "bookmarks", "storage", "favicon"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
+}
