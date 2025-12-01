@@ -56,8 +56,15 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px; /* Increased margin slightly */
-    gap: 8px; /* Gap between search and settings */
+    margin-bottom: 2px; /* Minimal margin */
+    gap: 8px; /* Gap between search and controls */
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Space between buttons */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* h1 removed */

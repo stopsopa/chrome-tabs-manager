@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const windowsContainer = document.getElementById('windows-container');
     const searchInput = document.getElementById('search-input');
     const openSettingsBtn = document.getElementById('open-settings');
+    const newWindowBtn = document.getElementById('new-window');
 
     // Open settings
     openSettingsBtn.addEventListener('click', () => {
@@ -10,6 +11,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             window.open(chrome.runtime.getURL('options.html'));
         }
+    });
+
+    // New Window Placeholder
+    newWindowBtn.addEventListener('click', () => {
+        createPlaceholderWindow();
     });
 
     // Initial render
@@ -302,6 +308,53 @@ function showContextMenu(x, y, tabId, windowId) {
     }
 }
 
+function createPlaceholderWindow() {
+    const windowsContainer = document.getElementById('windows-container');
+    
+    // Check if placeholder already exists
+    if (document.querySelector('.window-card.placeholder')) return;
+
+    const placeholderCard = document.createElement('div');
+    placeholderCard.className = 'window-card placeholder';
+    placeholderCard.style.borderStyle = 'dashed';
+    placeholderCard.style.opacity = '0.7';
+    placeholderCard.style.minHeight = '100px';
+    placeholderCard.style.display = 'flex';
+    placeholderCard.style.alignItems = 'center';
+    placeholderCard.style.justifyContent = 'center';
+    placeholderCard.innerHTML = '<span style="color: var(--text-secondary); font-size: 12px;">Drop tab here to create window</span>';
+
+    // Drag and Drop Handlers
+    placeholderCard.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        placeholderCard.classList.add('drag-over');
+    });
+
+    placeholderCard.addEventListener('dragleave', () => {
+        placeholderCard.classList.remove('drag-over');
+    });
+
+    placeholderCard.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        
+        const tabId = parseInt(e.dataTransfer.getData('text/plain'));
+        
+        if (tabId) {
+            try {
+                // Create new window with the dropped tab
+                await chrome.windows.create({ tabId: tabId, focused: true });
+                // Refresh UI
+                renderWindows();
+            } catch (err) {
+                console.error('Failed to create window with tab:', err);
+            }
+        }
+    });
+
+    // Insert at the beginning
+    windowsContainer.prepend(placeholderCard);
+}
+
 function highlightDuplicates(url, active) {
     const allTabs = document.querySelectorAll('.tab-item');
     allTabs.forEach(tab => {
@@ -353,6 +406,10 @@ function openSaveModal(windowObj) {
             <div class="modal-content">
                 <h3 class="modal-title">Save Window Tabs</h3>
                 <input type="text" id="group-name-input" class="modal-input" placeholder="Enter group name (e.g. AI Training)">
+                <div style="margin: 12px 0; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="close-window-checkbox" checked>
+                    <label for="close-window-checkbox" style="font-size: 13px; color: var(--text-primary); cursor: pointer;">Close window after saving</label>
+                </div>
                 <div class="modal-actions">
                     <button id="cancel-save" class="btn btn-secondary">Cancel</button>
                     <button id="confirm-save" class="btn btn-primary">Save & Close</button>
@@ -368,7 +425,9 @@ function openSaveModal(windowObj) {
     }
 
     const input = document.getElementById('group-name-input');
+    const checkbox = document.getElementById('close-window-checkbox');
     input.value = '';
+    checkbox.checked = true; // Default to true
     
     // Remove old listener to avoid duplicates
     const confirmBtn = document.getElementById('confirm-save');
@@ -377,18 +436,23 @@ function openSaveModal(windowObj) {
 
     newConfirmBtn.addEventListener('click', async () => {
         const name = input.value.trim();
+        const shouldClose = checkbox.checked;
         if (!name) return;
         
-        await saveWindowTabs(windowObj, name);
+        await saveWindowTabs(windowObj, name, shouldClose);
         modal.classList.remove('visible');
-        renderWindows(); // Refresh
+        
+        // Only refresh if window wasn't closed (card was already removed manually)
+        if (!shouldClose) {
+            renderWindows();
+        }
     });
 
     modal.classList.add('visible');
     input.focus();
 }
 
-async function saveWindowTabs(windowObj, name) {
+async function saveWindowTabs(windowObj, name, shouldClose = true) {
     // Get parent folder setting
     const settings = await chrome.storage.sync.get(['parentFolder']);
     const parentPath = settings.parentFolder || 'Bookmarks bar/_';
@@ -432,8 +496,15 @@ async function saveWindowTabs(windowObj, name) {
             });
         }
 
-        // Close the window
-        await chrome.windows.remove(windowObj.id);
+        // Close the window if requested
+        if (shouldClose) {
+            await chrome.windows.remove(windowObj.id);
+            // Manually remove from DOM for immediate feedback
+            const card = document.querySelector(`.window-card[data-window-id="${windowObj.id}"]`);
+            if (card) {
+                card.remove();
+            }
+        }
         
     } catch (err) {
         console.error('Error saving tabs:', err);
