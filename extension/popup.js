@@ -78,6 +78,11 @@ async function renderWindows() {
         });
     });
 
+    // Pre-fetch subfolders for saved status check
+    const settings = await chrome.storage.sync.get(['parentFolder']);
+    const parentPath = settings.parentFolder || 'Bookmarks bar/';
+    const subfolders = await getSubfolders(parentPath);
+
     // Create Global Tooltip
     let globalTooltip = document.getElementById('global-tooltip');
     if (!globalTooltip) {
@@ -87,13 +92,24 @@ async function renderWindows() {
         document.body.appendChild(globalTooltip);
     }
 
-    windows.forEach(win => {
+    // Process windows sequentially to allow async match checking
+    for (const win of windows) {
         const windowCard = document.createElement('div');
         windowCard.className = 'window-card';
         windowCard.dataset.windowId = win.id;
 
-        // No Header - Tabs directly in the card container
-        // We append tabs first, then actions at the end
+        // Calculate Saved Status
+        const { matchCount, fullySaved } = await findBestMatchFolder(win.tabs, subfolders);
+        const totalTabs = win.tabs.length;
+        
+        if (matchCount > 0) {
+            windowCard.dataset.matchLabel = `${matchCount}/${totalTabs}`;
+            if (fullySaved) {
+                windowCard.classList.add('fully-saved');
+            } else {
+                windowCard.classList.add('partially-saved');
+            }
+        }
 
         // Drag and Drop: Window Card as Drop Target
         windowCard.addEventListener('dragover', (e) => {
@@ -286,7 +302,7 @@ async function renderWindows() {
         windowCard.appendChild(closeBtn);
 
         windowsContainer.appendChild(windowCard);
-    });
+    }
 }
 
     // Close context menu on click outside

@@ -467,6 +467,43 @@ header {
     margin-bottom: 12px;
 }
 
+.window-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+    position: relative; /* For badge positioning */
+}
+
+/* Saved Status Badge */
+.window-card[data-match-label]::before {
+    content: attr(data-match-label);
+    position: absolute;
+    top: -8px;
+    right: -4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.window-card.fully-saved::before {
+    background-color: #10b981; /* Green */
+}
+
+.window-card.partially-saved::before {
+    background-color: #f59e0b; /* Amber/Orange */
+}
+
+
 .folder-item {
     padding: 8px;
     border-radius: 4px;
