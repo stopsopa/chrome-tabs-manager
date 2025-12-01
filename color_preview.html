@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Palette Experiments</title>
+    <link rel="stylesheet" href="extension/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            width: 100%;
+            height: auto;
+            background-color: #333; /* Dark background to make themes pop */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .theme-wrapper {
+            width: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background-color: var(--bg-color); /* Use the theme's bg color */
+        }
+
+        .theme-label {
+            background: #222;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+
+        /* Reset app container padding for the preview card */
+        .app-container {
+            min-height: 200px;
+        }
+
+        /* --- THEMES --- */
+
+        /* Theme 1: Cool Blue (Soft & Airy) */
+        .theme-cool {
+            --bg-color: #F5F7FA;
+            --card-bg: #E4E7EB;
+            --tab-item-bg: #CBD2D9; /* For tab icons */
+            --text-primary: #323F4B;
+            --text-secondary: #7B8794;
+            --border-color: #CBD2D9;
+        }
+
+        /* Theme 2: Warm Peach (Cozy) */
+        .theme-warm {
+            --bg-color: #FFF9F5;
+            --card-bg: #FFE8D6;
+            --tab-item-bg: #FFD8BE;
+            --text-primary: #4A3B32;
+            --text-secondary: #9C8678;
+            --border-color: #FFD8BE;
+        }
+
+        /* Theme 3: Minty Fresh (Clean) */
+        .theme-mint {
+            --bg-color: #F2FBF5;
+            --card-bg: #D3F5E0;
+            --tab-item-bg: #A8EAC0;
+            --text-primary: #274734;
+            --text-secondary: #6B8F7A;
+            --border-color: #A8EAC0;
+        }
+
+        /* Theme 4: Lavender Dream (Calm) */
+        .theme-lavender {
+            --bg-color: #F8F5FF;
+            --card-bg: #E9D8FD;
+            --tab-item-bg: #D6BCFA;
+            --text-primary: #44337A;
+            --text-secondary: #805AD5;
+            --border-color: #D6BCFA;
+        }
+        
+        /* Theme 5: Slate/Minimal (Modern Neutral) */
+        .theme-slate {
+            --bg-color: #F0F4F8;
+            --card-bg: #D9E2EC;
+            --tab-item-bg: #BCCCDC;
+            --text-primary: #102A43;
+            --text-secondary: #627D98;
+            --border-color: #BCCCDC;
+        }
+
+        /* Apply the tab background color variable which isn't in main CSS yet */
+        .theme-wrapper .tab-item {
+            background-color: var(--tab-item-bg, var(--bg-color));
+            border-color: rgba(0,0,0,0.05);
+        }
+        
+        /* Force window cards to look populated */
+        .window-card {
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Theme 1 -->
+    <div class="theme-wrapper theme-cool">
+        <div class="theme-label">Cool Blue</div>
+        <div class="app-container">
+            <header>
+                <div class="search-bar"><input type="text" placeholder="Search tabs..."></div>
+                <div class="header-controls">
+                    <button class="icon-btn">+</button>
+                    <button class="icon-btn">⚙️</button>
+                </div>
+            </header>
+            <div class="windows-grid">
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="action-btn save">💾</div>
+                    <div class="action-btn close">✕</div>
+                </div>
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme 2 -->
+    <div class="theme-wrapper theme-warm">
+        <div class="theme-label">Warm Peach</div>
+        <div class="app-container">
+            <header>
+                <div class="search-bar"><input type="text" placeholder="Search tabs..."></div>
+                <div class="header-controls">
+                    <button class="icon-btn">+</button>
+                    <button class="icon-btn">⚙️</button>
+                </div>
+            </header>
+            <div class="windows-grid">
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="action-btn save">💾</div>
+                    <div class="action-btn close">✕</div>
+                </div>
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme 3 -->
+    <div class="theme-wrapper theme-mint">
+        <div class="theme-label">Minty Fresh</div>
+        <div class="app-container">
+            <header>
+                <div class="search-bar"><input type="text" placeholder="Search tabs..."></div>
+                <div class="header-controls">
+                    <button class="icon-btn">+</button>
+                    <button class="icon-btn">⚙️</button>
+                </div>
+            </header>
+            <div class="windows-grid">
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="action-btn save">💾</div>
+                    <div class="action-btn close">✕</div>
+                </div>
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme 4 -->
+    <div class="theme-wrapper theme-lavender">
+        <div class="theme-label">Lavender Dream</div>
+        <div class="app-container">
+            <header>
+                <div class="search-bar"><input type="text" placeholder="Search tabs..."></div>
+                <div class="header-controls">
+                    <button class="icon-btn">+</button>
+                    <button class="icon-btn">⚙️</button>
+                </div>
+            </header>
+            <div class="windows-grid">
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="action-btn save">💾</div>
+                    <div class="action-btn close">✕</div>
+                </div>
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Theme 5 -->
+    <div class="theme-wrapper theme-slate">
+        <div class="theme-label">Slate / Minimal</div>
+        <div class="app-container">
+            <header>
+                <div class="search-bar"><input type="text" placeholder="Search tabs..."></div>
+                <div class="header-controls">
+                    <button class="icon-btn">+</button>
+                    <button class="icon-btn">⚙️</button>
+                </div>
+            </header>
+            <div class="windows-grid">
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="action-btn save">💾</div>
+                    <div class="action-btn close">✕</div>
+                </div>
+                <div class="window-card">
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                    <div class="tab-item"><img src="extension/images/icon16.png"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
