@@ -243,8 +243,66 @@ async function renderWindows() {
         closeBtn.className = 'action-btn close';
         // closeBtn.title = 'Close Window'; // Removed title
         closeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-        closeBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to close this window?')) {
+        closeBtn.addEventListener('click', async () => {
+            // Smart Check Logic
+            const settings = await chrome.storage.sync.get(['parentFolder']);
+            const parentPath = settings.parentFolder || 'Bookmarks bar/';
+            
+            let message = 'Are you sure you want to close this window?';
+            
+            try {
+                const subfolders = await getSubfolders(parentPath);
+                let bestMatch = null;
+                let maxMatches = -1;
+                let fullySaved = false;
+
+                // Normalize window URLs
+                const winUrls = new Set(win.tabs.map(t => t.url));
+                const winTabCount = win.tabs.length;
+
+                for (const folder of subfolders) {
+                    const bookmarks = await chrome.bookmarks.getChildren(folder.id);
+                    const bookmarkUrls = new Set(bookmarks.map(b => b.url));
+                    
+                    let matchCount = 0;
+                    for (const tab of win.tabs) {
+                        if (bookmarkUrls.has(tab.url)) {
+                            matchCount++;
+                        }
+                    }
+
+                    if (matchCount === winTabCount) {
+                        fullySaved = true;
+                        break; // Found a folder with ALL tabs
+                    }
+
+                    if (matchCount > maxMatches) {
+                        maxMatches = matchCount;
+                        bestMatch = folder;
+                    }
+                }
+
+                if (!fullySaved) {
+                    if (bestMatch && maxMatches > 0) {
+                        const missingCount = winTabCount - maxMatches;
+                        message = `Folder "${bestMatch.title}" contains ${maxMatches} of ${winTabCount} tabs.\n\nIt is missing ${missingCount} tabs.\n\nAre you sure you want to close without saving properly?`;
+                    } else {
+                        message = `None of the tabs in this window are saved in any folder under "${parentPath}".\n\nIt would be nice to save first.\n\nAre you sure you want to close?`;
+                    }
+                } else {
+                    // If fully saved, maybe a simpler confirmation or none? 
+                    // User asked for warnings when NOT saved. 
+                    // Let's keep a simple confirmation for safety, or make it very distinct.
+                    message = 'All tabs are safely saved. Close window?';
+                }
+
+            } catch (err) {
+                console.error('Smart check failed:', err);
+                // Fallback to generic message
+            }
+
+            const confirmed = await showConfirmModal(message);
+            if (confirmed) {
                 chrome.windows.remove(win.id);
                 windowCard.remove();
             }
@@ -782,5 +840,43 @@ function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
     element.addEventListener('mouseleave', () => {
         globalTooltip.style.display = 'none';
         if (onLeave) onLeave();
+    });
+}
+
+// Custom Confirmation Modal
+function showConfirmModal(message) {
+    return new Promise((resolve) => {
+        let modal = document.getElementById('confirm-modal');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'confirm-modal';
+        modal.className = 'modal visible';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="width: 320px;">
+                <h3 class="modal-title">Confirmation</h3>
+                <div class="modal-message">${message}</div>
+                <div class="modal-actions">
+                    <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-ok" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const cleanup = () => {
+            modal.remove();
+        };
+
+        document.getElementById('confirm-cancel').addEventListener('click', () => {
+            cleanup();
+            resolve(false);
+        });
+
+        document.getElementById('confirm-ok').addEventListener('click', () => {
+            cleanup();
+            resolve(true);
+        });
     });
 }

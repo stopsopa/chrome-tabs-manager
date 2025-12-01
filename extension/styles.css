@@ -329,6 +329,14 @@ header {
     margin-bottom: 12px;
 }
 
+.modal-message {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    white-space: pre-wrap; /* Preserve newlines */
+    line-height: 1.5;
+}
+
 .modal-input {
     width: 100%;
     padding: 6px;
