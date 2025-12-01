@@ -468,10 +468,10 @@ header {
 .windows-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    /* gap: 16px; */
     overflow-y: auto; /* Allow scrolling inside */
     flex-grow: 1; /* Take remaining space */
-    padding: 16px; /* Moved padding here from container */
+    /* padding: 16px; Moved padding here from container */
     padding-bottom: 24px; /* Extra space for resize handle */
 }
 .folder-list {
