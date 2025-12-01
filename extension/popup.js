@@ -99,11 +99,27 @@ async function renderWindows() {
         windowCard.dataset.windowId = win.id;
 
         // Calculate Saved Status
-        const { matchCount, fullySaved } = await findBestMatchFolder(win.tabs, subfolders);
+        const { folder: bestMatch, matchCount, fullySaved } = await findBestMatchFolder(win.tabs, subfolders);
         const totalTabs = win.tabs.length;
         
         if (matchCount > 0) {
-            windowCard.dataset.matchLabel = `${matchCount}/${totalTabs}`;
+            let label = `${matchCount}/${totalTabs}`;
+            
+            if (bestMatch) {
+                let namePart = bestMatch.title;
+                const dateRegex = /^(\d{4}_\d{2}_\d{2})_(.*)$/;
+                const match = bestMatch.title.match(dateRegex);
+                if (match) {
+                    namePart = match[2];
+                }
+                // Truncate if too long (optional, but good for badges)
+                if (namePart.length > 15) {
+                    namePart = namePart.substring(0, 12) + '...';
+                }
+                label = `${namePart} ${label}`;
+            }
+
+            windowCard.dataset.matchLabel = label;
             if (fullySaved) {
                 windowCard.classList.add('fully-saved');
             } else {
