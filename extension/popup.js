@@ -461,23 +461,33 @@ async function saveWindowTabs(windowObj, name, shouldClose = true) {
     // We need to find or create the folder structure.
     // For now, let's assume we just want to put it in 'Other bookmarks' or 'Bookmarks bar' -> '_'
     
-    // 1. Find 'Bookmarks bar' (id '1') or 'Other bookmarks' (id '2')
-    // Let's try to find the folder specified.
+    // 1. Find 'Bookmarks bar' ID dynamically
+    // The structure is usually Root(0) -> [Bar, Other, Mobile]
+    // We'll look for the first child of the root that is a folder.
+    const tree = await chrome.bookmarks.getTree();
+    let bookmarksBarId = '1'; // Default fallback
     
+    if (tree && tree[0] && tree[0].children && tree[0].children.length > 0) {
+        // Usually the first child is the Bookmarks Bar
+        bookmarksBarId = tree[0].children[0].id;
+    }
+
     const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '_');
     const folderName = `${dateStr}_${name}`;
 
     try {
-        // Find or create the parent folder "_"
-        // We'll search for it.
-        const searchResults = await chrome.bookmarks.search({ title: '_' });
+        // Find or create the parent folder "" (empty string) under Bookmarks Bar
+        const children = await chrome.bookmarks.getChildren(bookmarksBarId);
+        // Ensure it's a folder (no url) and has empty title
+        const targetFolder = children.find(node => node.title === '' && !node.url);
+        
         let parentId;
         
-        if (searchResults.length > 0) {
-            parentId = searchResults[0].id;
+        if (targetFolder) {
+            parentId = targetFolder.id;
         } else {
-            // Create it under Bookmarks Bar (id '1')
-            const created = await chrome.bookmarks.create({ parentId: '1', title: '_' });
+            // Create it under Bookmarks Bar
+            const created = await chrome.bookmarks.create({ parentId: bookmarksBarId, title: '' });
             parentId = created.id;
         }
 
