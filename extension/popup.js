@@ -146,7 +146,7 @@ async function renderWindows() {
         windowCard.dataset.windowId = win.id;
 
         // Calculate Saved Status
-        const { folder: bestMatch, matchCount, fullySaved } = await findBestMatchFolder(win.tabs, subfolders);
+        const { folder: bestMatch, matchCount, fullySaved, savedUrls } = await findBestMatchFolder(win.tabs, subfolders);
         const totalTabs = win.tabs.length;
         
         if (matchCount > 0) {
@@ -233,6 +233,11 @@ async function renderWindows() {
             // Check for duplicates
             if (urlCounts.get(tab.url) > 1) {
                 tabItem.classList.add('duplicate');
+            }
+
+            // Check for unsaved status (only if there is a partial match)
+            if (matchCount > 0 && savedUrls && savedUrls.size > 0 && !savedUrls.has(tab.url)) {
+                tabItem.classList.add('unsaved');
             }
 
             // Favicon
@@ -697,6 +702,7 @@ async function findBestMatchFolder(tabs, subfolders) {
     let bestMatch = null;
     let maxMatches = -1;
     let fullySaved = false;
+    let bestMatchSavedUrls = new Set();
     const winTabCount = tabs.length;
 
     for (const folder of subfolders) {
@@ -712,19 +718,21 @@ async function findBestMatchFolder(tabs, subfolders) {
 
         if (matchCount === winTabCount) {
             fullySaved = true;
-            return { folder, matchCount, fullySaved: true };
+            return { folder, matchCount, fullySaved: true, savedUrls: bookmarkUrls };
         }
 
         if (matchCount > maxMatches) {
             maxMatches = matchCount;
             bestMatch = folder;
+            bestMatchSavedUrls = bookmarkUrls;
         }
     }
 
     return { 
         folder: bestMatch, 
         matchCount: maxMatches, 
-        fullySaved: false 
+        fullySaved: false,
+        savedUrls: bestMatchSavedUrls
     };
 }
 

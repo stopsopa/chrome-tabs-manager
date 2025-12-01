@@ -169,8 +169,8 @@ header {
 }
 
 .tab-item:hover {
-    transform: translateY(-1px);
-    border-color: var(--border-color);
+    /* transform: translateY(-1px); */
+    border-color: #035eba;
 }
 
 .tab-item img {
@@ -194,6 +194,11 @@ header {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 1px var(--accent-color);
     z-index: 5;
+}
+
+.tab-item.unsaved {
+    /* Red underscore for unsaved tabs in a matched folder */
+    box-shadow: 2px 0px 0 0 var(--danger-color), 0px -2px 0 0 var(--danger-color), 0px 2px 0 0 var(--danger-color), -2px 0px 0 0 var(--danger-color)
 }
 
 /* Action buttons styled as icons within the grid */
