@@ -103,6 +103,55 @@
             width: 100%;
         }
 
+
+        /* --- ICONS --- */
+        .icon-preview-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 40px;
+            background: #222;
+            padding: 20px;
+            border-radius: 12px;
+            color: #fff;
+        }
+
+        .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .icon-card {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 160px;
+        }
+
+        .icon-card span {
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .icon-svg {
+            width: 64px;
+            height: 64px;
+        }
+        
+        /* Small preview to simulate toolbar size */
+        .icon-svg.small {
+            width: 24px;
+            height: 24px;
+            margin-top: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -239,6 +288,165 @@
                     <div class="tab-item"><img src="extension/images/icon16.png"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Icon Candidates Section -->
+    <div class="icon-preview-section">
+        <h2 style="text-align: center; margin: 0;">Icon Candidates</h2>
+        <p style="text-align: center; color: #888;">Group A: Orange with Black Outline | Group B: Orange Fill with Brown Contrast</p>
+        
+        <div class="icon-grid">
+            <!-- Group A: Outline Style -->
+            
+            <!-- 1. Stacked Tabs -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="20" height="16" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="8" y="12" width="20" height="16" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="20" height="16" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="8" y="12" width="20" height="16" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <span>1. Stacked Tabs</span>
+            </div>
+
+            <!-- 2. List View -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="3" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <line x1="9" y1="10" x2="23" y2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="9" y1="16" x2="23" y2="16" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="9" y1="22" x2="18" y2="22" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="3" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <line x1="9" y1="10" x2="23" y2="10" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="9" y1="16" x2="23" y2="16" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="9" y1="22" x2="18" y2="22" stroke="black" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>2. List View</span>
+            </div>
+
+            <!-- 3. Folder -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 8C4 6.89543 4.89543 6 6 6H12L14 9H26C27.1046 9 28 9.89543 28 11V24C28 25.1046 27.1046 26 26 26H6C4.89543 26 4 25.1046 4 24V8Z" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 8C4 6.89543 4.89543 6 6 6H12L14 9H26C27.1046 9 28 9.89543 28 11V24C28 25.1046 27.1046 26 26 26H6C4.89543 26 4 25.1046 4 24V8Z" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <span>3. Folder</span>
+            </div>
+
+            <!-- 4. Browser Window -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="6" width="26" height="20" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <line x1="3" y1="12" x2="29" y2="12" stroke="black" stroke-width="2"/>
+                    <circle cx="7" cy="9" r="1.5" fill="black"/>
+                    <circle cx="11" cy="9" r="1.5" fill="black"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="6" width="26" height="20" rx="2" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <line x1="3" y1="12" x2="29" y2="12" stroke="black" stroke-width="2"/>
+                    <circle cx="7" cy="9" r="1.5" fill="black"/>
+                    <circle cx="11" cy="9" r="1.5" fill="black"/>
+                </svg>
+                <span>4. Browser Window</span>
+            </div>
+
+            <!-- 5. Grid View -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="5" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="5" y="17" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="17" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="5" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="5" y="17" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="17" width="10" height="10" rx="1" fill="#FF9F1C" stroke="black" stroke-width="2"/>
+                </svg>
+                <span>5. Grid View</span>
+            </div>
+
+            <!-- Group B: Contrast Style -->
+
+            <!-- 6. Tab Circle -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FF9F1C"/>
+                    <path d="M10 12C10 10.8954 10.8954 10 12 10H15L17 12H22C23.1046 12 24 12.8954 24 14V20C24 21.1046 23.1046 22 22 22H10C8.89543 22 8 21.1046 8 20V12Z" fill="#5D4037"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FF9F1C"/>
+                    <path d="M10 12C10 10.8954 10.8954 10 12 10H15L17 12H22C23.1046 12 24 12.8954 24 14V20C24 21.1046 23.1046 22 22 22H10C8.89543 22 8 21.1046 8 20V12Z" fill="#5D4037"/>
+                </svg>
+                <span>6. Tab Circle</span>
+            </div>
+
+            <!-- 7. Manager Square -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="6" fill="#FF9F1C"/>
+                    <rect x="10" y="10" width="12" height="3" rx="1.5" fill="#5D4037"/>
+                    <rect x="10" y="15" width="12" height="3" rx="1.5" fill="#5D4037"/>
+                    <rect x="10" y="20" width="8" height="3" rx="1.5" fill="#5D4037"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="6" fill="#FF9F1C"/>
+                    <rect x="10" y="10" width="12" height="3" rx="1.5" fill="#5D4037"/>
+                    <rect x="10" y="15" width="12" height="3" rx="1.5" fill="#5D4037"/>
+                    <rect x="10" y="20" width="8" height="3" rx="1.5" fill="#5D4037"/>
+                </svg>
+                <span>7. Manager Square</span>
+            </div>
+
+            <!-- 8. Sync Arrows -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FF9F1C"/>
+                    <path d="M16 8V11L20 8L16 5V8C11.5817 8 8 11.5817 8 16H10C10 12.6863 12.6863 10 16 10Z" fill="#5D4037"/>
+                    <path d="M16 24V21L12 24L16 27V24C20.4183 24 24 20.4183 24 16H22C22 19.3137 19.3137 22 16 22Z" fill="#5D4037"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" fill="#FF9F1C"/>
+                    <path d="M16 8V11L20 8L16 5V8C11.5817 8 8 11.5817 8 16H10C10 12.6863 12.6863 10 16 10Z" fill="#5D4037"/>
+                    <path d="M16 24V21L12 24L16 27V24C20.4183 24 24 20.4183 24 16H22C22 19.3137 19.3137 22 16 22Z" fill="#5D4037"/>
+                </svg>
+                <span>8. Sync Arrows</span>
+            </div>
+
+            <!-- 9. Search Lens -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="8" fill="#FF9F1C"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19 17.5858L22.2929 20.8787L20.8787 22.2929L17.5858 19C16.5118 19.6256 15.2874 19.9576 14.0417 19.9576C10.7488 19.9576 8.08334 17.2921 8.08334 13.9992C8.08334 10.7063 10.7488 8.04085 14.0417 8.04085C17.3346 8.04085 20 10.7063 20 13.9992C20 15.2449 19.668 16.4693 19.0424 17.5433H19V17.5858ZM14.0417 10.0408C11.8554 10.0408 10.0833 11.8129 10.0833 13.9992C10.0833 16.1855 11.8554 17.9576 14.0417 17.9576C16.228 17.9576 18 16.1855 18 13.9992C18 11.8129 16.228 10.0408 14.0417 10.0408Z" fill="#5D4037"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="24" height="24" rx="8" fill="#FF9F1C"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19 17.5858L22.2929 20.8787L20.8787 22.2929L17.5858 19C16.5118 19.6256 15.2874 19.9576 14.0417 19.9576C10.7488 19.9576 8.08334 17.2921 8.08334 13.9992C8.08334 10.7063 10.7488 8.04085 14.0417 8.04085C17.3346 8.04085 20 10.7063 20 13.9992C20 15.2449 19.668 16.4693 19.0424 17.5433H19V17.5858ZM14.0417 10.0408C11.8554 10.0408 10.0833 11.8129 10.0833 13.9992C10.0833 16.1855 11.8554 17.9576 14.0417 17.9576C16.228 17.9576 18 16.1855 18 13.9992C18 11.8129 16.228 10.0408 14.0417 10.0408Z" fill="#5D4037"/>
+                </svg>
+                <span>9. Search Lens</span>
+            </div>
+
+            <!-- 10. Abstract Hex -->
+            <div class="icon-card">
+                <svg class="icon-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 4L26.3923 10V22L16 28L5.6077 22V10L16 4Z" fill="#FF9F1C"/>
+                    <path d="M16 10V22M10.8038 13L21.1962 19M21.1962 13L10.8038 19" stroke="#5D4037" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="icon-svg small" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 4L26.3923 10V22L16 28L5.6077 22V10L16 4Z" fill="#FF9F1C"/>
+                    <path d="M16 10V22M10.8038 13L21.1962 19M21.1962 13L10.8038 19" stroke="#5D4037" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>10. Abstract Hex</span>
+            </div>
+
         </div>
     </div>
 

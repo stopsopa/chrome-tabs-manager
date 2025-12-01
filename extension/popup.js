@@ -578,9 +578,16 @@ async function openSaveModal(windowObj) {
         `;
         document.body.appendChild(modal);
         
-        // Event listeners
+    // Event listeners
         document.getElementById('cancel-save').addEventListener('click', () => {
             modal.classList.remove('visible');
+        });
+
+        // Close on click outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('visible');
+            }
         });
     }
 
@@ -1007,6 +1014,14 @@ function showConfirmModal(message) {
         document.getElementById('confirm-ok').addEventListener('click', () => {
             cleanup();
             resolve(true);
+        });
+
+        // Close on click outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                cleanup();
+                resolve(false);
+            }
         });
     });
 }
