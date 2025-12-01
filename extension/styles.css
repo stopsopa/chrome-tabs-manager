@@ -484,6 +484,15 @@ header {
     border-color: var(--border-color);
 }
 
+.folder-item.best-match {
+    background-color: rgba(37, 99, 235, 0.05);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+
+.folder-item.best-match:hover {
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
 .folder-icon {
     color: var(--accent-color);
 }
@@ -491,6 +500,16 @@ header {
 .folder-name {
     font-size: 13px;
     font-weight: 500;
+    flex-grow: 1;
+}
+
+.match-badge {
+    font-size: 10px;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
 }
 
 .no-folders {

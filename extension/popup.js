@@ -204,6 +204,11 @@ async function renderWindows() {
             const parentPath = settings.parentFolder || 'Bookmarks bar/';
             const folders = await getSubfolders(parentPath);
             
+            // Find best match to highlight
+            const { folder: bestMatch, matchCount } = await findBestMatchFolder(win.tabs, folders);
+            const bestMatchId = bestMatch ? bestMatch.id : null;
+            const totalTabs = win.tabs.length;
+
             showFolderSelectionModal(folders, async (folderId) => {
                 // Sync Logic
                 try {
@@ -233,7 +238,7 @@ async function renderWindows() {
                     console.error('Sync failed:', err);
                     alert('Sync failed: ' + err.message);
                 }
-            }, 'Sync to Folder');
+            }, 'Sync to Folder', bestMatchId, matchCount, totalTabs);
         });
         attachTooltip(syncBtn, 'Sync to Folder', windowCard);
         windowCard.appendChild(syncBtn);
@@ -252,35 +257,8 @@ async function renderWindows() {
             
             try {
                 const subfolders = await getSubfolders(parentPath);
-                let bestMatch = null;
-                let maxMatches = -1;
-                let fullySaved = false;
-
-                // Normalize window URLs
-                const winUrls = new Set(win.tabs.map(t => t.url));
+                const { folder: bestMatch, matchCount: maxMatches, fullySaved } = await findBestMatchFolder(win.tabs, subfolders);
                 const winTabCount = win.tabs.length;
-
-                for (const folder of subfolders) {
-                    const bookmarks = await chrome.bookmarks.getChildren(folder.id);
-                    const bookmarkUrls = new Set(bookmarks.map(b => b.url));
-                    
-                    let matchCount = 0;
-                    for (const tab of win.tabs) {
-                        if (bookmarkUrls.has(tab.url)) {
-                            matchCount++;
-                        }
-                    }
-
-                    if (matchCount === winTabCount) {
-                        fullySaved = true;
-                        break; // Found a folder with ALL tabs
-                    }
-
-                    if (matchCount > maxMatches) {
-                        maxMatches = matchCount;
-                        bestMatch = folder;
-                    }
-                }
 
                 if (!fullySaved) {
                     if (bestMatch && maxMatches > 0) {
@@ -290,9 +268,6 @@ async function renderWindows() {
                         message = `None of the tabs in this window are saved in any folder under "${parentPath}".\n\nIt would be nice to save first.\n\nAre you sure you want to close?`;
                     }
                 } else {
-                    // If fully saved, maybe a simpler confirmation or none? 
-                    // User asked for warnings when NOT saved. 
-                    // Let's keep a simple confirmation for safety, or make it very distinct.
                     message = 'All tabs are safely saved. Close window?';
                 }
 
@@ -631,7 +606,42 @@ async function saveWindowTabs(windowObj, name, shouldClose = true) {
     }
 }
 
-// Helper to find or create a folder by absolute path (e.g. "Bookmarks bar/MyFolder")
+// Helper to find the best matching folder for a set of tabs
+async function findBestMatchFolder(tabs, subfolders) {
+    let bestMatch = null;
+    let maxMatches = -1;
+    let fullySaved = false;
+    const winTabCount = tabs.length;
+
+    for (const folder of subfolders) {
+        const bookmarks = await chrome.bookmarks.getChildren(folder.id);
+        const bookmarkUrls = new Set(bookmarks.map(b => b.url));
+        
+        let matchCount = 0;
+        for (const tab of tabs) {
+            if (bookmarkUrls.has(tab.url)) {
+                matchCount++;
+            }
+        }
+
+        if (matchCount === winTabCount) {
+            fullySaved = true;
+            return { folder, matchCount, fullySaved: true };
+        }
+
+        if (matchCount > maxMatches) {
+            maxMatches = matchCount;
+            bestMatch = folder;
+        }
+    }
+
+    return { 
+        folder: bestMatch, 
+        matchCount: maxMatches, 
+        fullySaved: false 
+    };
+}
+
 // Helper to find or create a folder by absolute path (e.g. "Bookmarks bar/MyFolder")
 async function findOrCreateFolderByPath(path) {
     // Split by slash, trim parts, but KEEP the last empty part if it exists (trailing slash)
@@ -709,7 +719,7 @@ async function getSubfolders(parentPath) {
 }
 
 // Folder Selection Modal
-function showFolderSelectionModal(folders, onSelect, title = 'Select Folder') {
+function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', bestMatchId = null, matchCount = 0, totalCount = 0) {
     // Create modal if not exists (reuse save-modal structure but different content)
     let modal = document.getElementById('folder-modal');
     if (modal) modal.remove(); // Re-create to ensure clean state
@@ -718,18 +728,30 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder') {
     modal.id = 'folder-modal';
     modal.className = 'modal visible'; // Immediately visible
     
+    // Sort folders: Best match first, then alphabetical
+    const sortedFolders = [...folders].sort((a, b) => {
+        if (a.id === bestMatchId) return -1;
+        if (b.id === bestMatchId) return 1;
+        return a.title.localeCompare(b.title);
+    });
+
     let folderListHtml = '';
-    if (folders.length === 0) {
+    if (sortedFolders.length === 0) {
         folderListHtml = '<div class="no-folders">No subfolders found in parent path.</div>';
     } else {
         folderListHtml = '<div class="folder-list">';
-        folders.forEach(folder => {
+        sortedFolders.forEach(folder => {
+            const isBestMatch = folder.id === bestMatchId;
+            const extraClass = isBestMatch ? 'best-match' : '';
+            const badge = isBestMatch ? `<span class="match-badge">Best Match ${matchCount}/${totalCount}</span>` : '';
+            
             folderListHtml += `
-                <div class="folder-item" data-id="${folder.id}">
+                <div class="folder-item ${extraClass}" data-id="${folder.id}">
                     <span class="folder-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </span>
                     <span class="folder-name">${folder.title}</span>
+                    ${badge}
                 </div>
             `;
         });
