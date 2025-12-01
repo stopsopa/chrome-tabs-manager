@@ -1,13 +1,14 @@
 :root {
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
+    --bg-color: #F5F7FA;
+    --card-bg: #E4E7EB;
+    --tab-item-bg: #CBD2D9;
+    --text-primary: #323F4B;
+    --text-secondary: #7B8794;
     --accent-color: #2563eb;
     --accent-hover: #1d4ed8;
     --danger-color: #ef4444;
     --success-color: #22c55e;
-    --border-color: #e5e7eb;
+    --border-color: #CBD2D9;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --highlight-color: #fffbeb;
@@ -149,7 +150,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-color);
+    background-color: var(--tab-item-bg);
     cursor: pointer;
     position: relative;
     border: 1px solid transparent;
