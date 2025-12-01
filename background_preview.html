@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Background Pattern Options</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 40px;
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        h1 { margin-bottom: 30px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background-color: #f8fafc; /* Base color */
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #94a3b8;
+        }
+        .label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            font-weight: 600;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        /* --- Patterns --- */
+
+        /* 1. Subtle Waves (Current) */
+        .pattern-waves {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='%2394a3b8' fill-opacity='0.07' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 2. Micro Grid */
+        .pattern-grid {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 0v20M0 1h20' stroke='%2394a3b8' stroke-width='1' stroke-opacity='0.1' fill='none'/%3E%3C/svg%3E");
+        }
+
+        /* 3. Polka Dots */
+        .pattern-dots {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%2394a3b8' fill-opacity='0.15'/%3E%3C/svg%3E");
+        }
+
+        /* 4. Diagonal Stripes */
+        .pattern-stripes {
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M-1 1l2 -2M0 10l10 -10M9 11l2 -2' stroke='%2394a3b8' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        /* 5. Hexagons */
+        .pattern-hex {
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='40' viewBox='0 0 24 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40c5.523 0 10-4.477 10-10V10C10 4.477 5.523 0 0 0h24c-5.523 0-10 4.477-10 10v20c0 5.523 4.477 10 10 10H0z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        /* 6. Topography (Simplified) */
+        .pattern-topo {
+             background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2394a3b8' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 7. Zigzag */
+        .pattern-zigzag {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='12' viewBox='0 0 40 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6.172L6.172 0h5.656L0 11.828V6.172zm40 5.656L28.172 0h5.656L40 6.172v5.656zM6.172 12l12-12h3.656l-12 12H6.172zM24 12L36 0h3.656l-12 12H24z' fill='%2394a3b8' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 8. Triangles */
+        .pattern-triangles {
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0l12 24H0z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 9. Crosses */
+        .pattern-crosses {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2394a3b8' fill-opacity='0.1'%3E%3Cpath d='M0 0h20L0 20z'/%3E%3Cpath d='M20 0L0 20h20z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        /* 10. Plus Signs */
+        .pattern-plus {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 11. Diagonal Lines (Right) */
+        .pattern-diag-right {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.08'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 12. Diagonal Lines (Left) */
+        .pattern-diag-left {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.08'%3E%3Cpath d='M0 0l40 40h-20l-20-20M40 0v20l-20-20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 13. Vertical Lines */
+        .pattern-vertical {
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 0v10' stroke='%2394a3b8' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        /* 14. Horizontal Lines */
+        .pattern-horizontal {
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 5h10' stroke='%2394a3b8' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        /* 15. Checkerboard */
+        .pattern-checker {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2394a3b8' fill-opacity='0.05'%3E%3Cpath d='M0 0h10v10H0zm10 10h10v10H10z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 16. Diamonds */
+        .pattern-diamonds {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0l10 10-10 10L0 10z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 17. Scales */
+        .pattern-scales {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='12' viewBox='0 0 20 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0a10 10 0 0110 10h10a10 10 0 01-10-10V0zM10 2a10 10 0 0110 10h10a10 10 0 01-10-10V2z' fill='%2394a3b8' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 18. Bricks */
+        .pattern-bricks {
+            background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2394a3b8' fill-opacity='0.08'%3E%3Cpath d='M0 0h42v44H0V0zm1 1h40v20H1V1zM0 23h20v20H0V23zm22 0h20v20H22V23z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 19. Wiggle */
+        .pattern-wiggle {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10c2.5 0 2.5-5 5-5s2.5 5 5 5 2.5-5 5-5 2.5 5 5 5v2c-2.5 0-2.5-5-5-5s-2.5 5-5 5-2.5-5-5-5-2.5 5-5 5v-2z' fill='%2394a3b8' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 20. Bubbles */
+        .pattern-bubbles {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='2' fill='%2394a3b8' fill-opacity='0.05'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%2394a3b8' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        /* 21. Stars */
+        .pattern-stars {
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 22. Hearts */
+        .pattern-hearts {
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 23. Clouds */
+        .pattern-clouds {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 20a5 5 0 110-10 5 5 0 010 10zm20 0a5 5 0 110-10 5 5 0 010 10zm-10 5a5 5 0 110-10 5 5 0 010 10z' fill='%2394a3b8' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* 24. Rain */
+        .pattern-rain {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0v5M5 10v5M15 10v5' stroke='%2394a3b8' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        /* 25. Snow */
+        .pattern-snow {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%2394a3b8' fill-opacity='0.1'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%2394a3b8' fill-opacity='0.1'/%3E%3Ccircle cx='18' cy='18' r='1' fill='%2394a3b8' fill-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+        /* 26. Confetti */
+        .pattern-confetti {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='0' width='4' height='4' fill='%2394a3b8' fill-opacity='0.1'/%3E%3Crect x='10' y='10' width='4' height='4' fill='%2394a3b8' fill-opacity='0.1'/%3E%3Crect x='20' y='20' width='4' height='4' fill='%2394a3b8' fill-opacity='0.1'/%3E%3Crect x='30' y='30' width='4' height='4' fill='%2394a3b8' fill-opacity='0.1'/%3E%3C/svg%3E");
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Background Pattern Options</h1>
+    <p style="margin-bottom: 24px; color: #64748b;">Subtle, pastel-gray patterns to enhance the extension's aesthetic.</p>
+    
+    <div class="grid">
+        <div class="card pattern-waves">
+            <div class="label">
+                <span>1. Subtle Waves (Current)</span>
+            </div>
+        </div>
+        
+        <div class="card pattern-grid">
+            <div class="label">
+                <span>2. Micro Grid</span>
+            </div>
+        </div>
+        
+        <div class="card pattern-dots">
+            <div class="label">
+                <span>3. Polka Dots</span>
+            </div>
+        </div>
+        
+        <div class="card pattern-stripes">
+            <div class="label">
+                <span>4. Diagonal Stripes</span>
+            </div>
+        </div>
+        
+        <div class="card pattern-hex">
+            <div class="label">
+                <span>5. Hexagons</span>
+            </div>
+        </div>
+        
+        <div class="card pattern-topo">
+            <div class="label">
+                <span>6. Scattered Shapes</span>
+            </div>
+        </div>
+
+        <div class="card pattern-zigzag">
+            <div class="label">
+                <span>7. Zigzag</span>
+            </div>
+        </div>
+
+        <div class="card pattern-triangles">
+            <div class="label">
+                <span>8. Triangles</span>
+            </div>
+        </div>
+
+        <div class="card pattern-crosses">
+            <div class="label">
+                <span>9. Crosses</span>
+            </div>
+        </div>
+
+        <div class="card pattern-plus">
+            <div class="label">
+                <span>10. Plus Signs</span>
+            </div>
+        </div>
+
+        <div class="card pattern-diag-right">
+            <div class="label">
+                <span>11. Diagonal Right</span>
+            </div>
+        </div>
+
+        <div class="card pattern-diag-left">
+            <div class="label">
+                <span>12. Diagonal Left</span>
+            </div>
+        </div>
+
+        <div class="card pattern-vertical">
+            <div class="label">
+                <span>13. Vertical Lines</span>
+            </div>
+        </div>
+
+        <div class="card pattern-horizontal">
+            <div class="label">
+                <span>14. Horizontal Lines</span>
+            </div>
+        </div>
+
+        <div class="card pattern-checker">
+            <div class="label">
+                <span>15. Checkerboard</span>
+            </div>
+        </div>
+
+        <div class="card pattern-diamonds">
+            <div class="label">
+                <span>16. Diamonds</span>
+            </div>
+        </div>
+
+        <div class="card pattern-scales">
+            <div class="label">
+                <span>17. Scales</span>
+            </div>
+        </div>
+
+        <div class="card pattern-bricks">
+            <div class="label">
+                <span>18. Bricks</span>
+            </div>
+        </div>
+
+        <div class="card pattern-wiggle">
+            <div class="label">
+                <span>19. Wiggle</span>
+            </div>
+        </div>
+
+        <div class="card pattern-bubbles">
+            <div class="label">
+                <span>20. Bubbles</span>
+            </div>
+        </div>
+
+        <div class="card pattern-stars">
+            <div class="label">
+                <span>21. Stars</span>
+            </div>
+        </div>
+
+        <div class="card pattern-hearts">
+            <div class="label">
+                <span>22. Hearts</span>
+            </div>
+        </div>
+
+        <div class="card pattern-clouds">
+            <div class="label">
+                <span>23. Clouds</span>
+            </div>
+        </div>
+
+        <div class="card pattern-rain">
+            <div class="label">
+                <span>24. Rain</span>
+            </div>
+        </div>
+
+        <div class="card pattern-snow">
+            <div class="label">
+                <span>25. Snow</span>
+            </div>
+        </div>
+
+        <div class="card pattern-confetti">
+            <div class="label">
+                <span>26. Confetti</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
