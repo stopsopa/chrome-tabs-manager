@@ -4,13 +4,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openSettingsBtn = document.getElementById('open-settings');
     const newWindowBtn = document.getElementById('new-window');
 
-    // Open settings
-    openSettingsBtn.addEventListener('click', () => {
-        if (chrome.runtime.openOptionsPage) {
-            chrome.runtime.openOptionsPage();
+    const settingsPanel = document.getElementById('settings-panel');
+    const parentFolderInput = document.getElementById('parent-folder-input');
+    const saveSettingsBtn = document.getElementById('save-settings');
+    const resetSettingsBtn = document.getElementById('reset-settings');
+
+    // Toggle settings panel
+    openSettingsBtn.addEventListener('click', async () => {
+        const isHidden = settingsPanel.classList.contains('hidden');
+        if (isHidden) {
+            // Load current setting
+            const settings = await chrome.storage.sync.get(['parentFolder']);
+            // Default is 'Bookmarks bar/' (with trailing slash for empty folder)
+            parentFolderInput.value = settings.parentFolder !== undefined ? settings.parentFolder : 'Bookmarks bar/';
+            settingsPanel.classList.remove('hidden');
         } else {
-            window.open(chrome.runtime.getURL('options.html'));
+            settingsPanel.classList.add('hidden');
         }
+    });
+
+    // Reset settings
+    resetSettingsBtn.addEventListener('click', () => {
+        parentFolderInput.value = 'Bookmarks bar/'; // Reset to default
+    });
+
+    // Save settings
+    saveSettingsBtn.addEventListener('click', async () => {
+        const parentFolder = parentFolderInput.value.trim();
+        await chrome.storage.sync.set({ parentFolder });
+        
+        // Visual feedback
+        const originalText = saveSettingsBtn.textContent;
+        saveSettingsBtn.textContent = 'Saved!';
+        setTimeout(() => {
+            saveSettingsBtn.textContent = originalText;
+            settingsPanel.classList.add('hidden');
+        }, 1000);
     });
 
     // New Window Placeholder
@@ -476,26 +505,18 @@ async function saveWindowTabs(windowObj, name, shouldClose = true) {
     const folderName = `${dateStr}_${name}`;
 
     try {
-        // Find or create the parent folder "" (empty string) under Bookmarks Bar
-        const children = await chrome.bookmarks.getChildren(bookmarksBarId);
-        // Ensure it's a folder (no url) and has empty title
-        const targetFolder = children.find(node => node.title === '' && !node.url);
+        // Use the user's configured parent folder path, or default to "Bookmarks bar"
+        const targetPath = settings.parentFolder || 'Bookmarks bar';
         
-        let parentId;
+        const parentId = await findOrCreateFolderByPath(targetPath);
         
-        if (targetFolder) {
-            parentId = targetFolder.id;
-        } else {
-            // Create it under Bookmarks Bar
-            const created = await chrome.bookmarks.create({ parentId: bookmarksBarId, title: '' });
-            parentId = created.id;
-        }
-
         // Create the new group folder
         const groupFolder = await chrome.bookmarks.create({
             parentId: parentId,
             title: folderName
         });
+
+
 
         // Save all tabs
         for (const tab of windowObj.tabs) {
@@ -520,4 +541,69 @@ async function saveWindowTabs(windowObj, name, shouldClose = true) {
         console.error('Error saving tabs:', err);
         alert('Failed to save tabs: ' + err.message);
     }
+}
+
+// Helper to find or create a folder by absolute path (e.g. "Bookmarks bar/MyFolder")
+// Helper to find or create a folder by absolute path (e.g. "Bookmarks bar/MyFolder")
+async function findOrCreateFolderByPath(path) {
+    // Split by slash, trim parts, but KEEP the last empty part if it exists (trailing slash)
+    // "Bookmarks bar/" -> ["Bookmarks bar", ""]
+    // "Bookmarks bar" -> ["Bookmarks bar"]
+    // "Bookmarks bar//Folder" -> ["Bookmarks bar", "Folder"] (middle empty ignored)
+    let parts = path.split('/').map(p => p.trim()).filter((p, i, arr) => p !== '' || i === arr.length - 1);
+    
+    // Special case: if input was just "" or "/", parts might be [""]
+    // If it's just "", we usually mean root.
+    if (parts.length === 1 && parts[0] === '') {
+        parts = [];
+    }
+
+    const tree = await chrome.bookmarks.getTree();
+    const rootChildren = tree[0].children; // Bookmarks bar, Other, Mobile
+
+    if (parts.length === 0) {
+        // Default to first root child (usually Bookmarks bar) if empty
+        return rootChildren[0].id;
+    }
+
+    let parentId;
+    let currentNodes;
+
+    // Check if first part matches a root folder (case-insensitive)
+    const firstPart = parts[0];
+    const rootMatch = rootChildren.find(node => node.title.toLowerCase() === firstPart.toLowerCase());
+
+    if (rootMatch) {
+        parentId = rootMatch.id;
+        currentNodes = await chrome.bookmarks.getChildren(parentId);
+        parts.shift(); // Remove the root part from processing list
+    } else {
+        // Default to Bookmarks bar (usually id '1')
+        // We find it by ID '1' or the first one.
+        const bookmarksBar = rootChildren.find(n => n.id === '1') || rootChildren[0];
+        parentId = bookmarksBar.id;
+        currentNodes = await chrome.bookmarks.getChildren(parentId);
+        // Do NOT shift parts; the first part is a subfolder of Bookmarks bar
+    }
+
+    for (const part of parts) {
+        // Find a folder with this title
+        let foundNode = currentNodes.find(node => node.title === part && !node.url);
+        
+        if (foundNode) {
+            parentId = foundNode.id;
+            // Fetch children for next iteration
+            currentNodes = await chrome.bookmarks.getChildren(parentId);
+        } else {
+            // Create it
+            const created = await chrome.bookmarks.create({
+                parentId: parentId,
+                title: part
+            });
+            parentId = created.id;
+            currentNodes = []; // New folder has no children yet
+        }
+    }
+    
+    return parentId;
 }

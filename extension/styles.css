@@ -372,3 +372,57 @@ header {
 .btn-primary:hover {
     background-color: var(--accent-hover);
 }
+
+/* Settings Panel */
+.settings-panel {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    max-height: 200px;
+}
+
+.settings-panel.hidden {
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    opacity: 0;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-content label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.settings-content input {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.help-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+    align-self: flex-start;
+}
