@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetSettingsBtn = document.getElementById('reset-settings');
 
     // Toggle settings panel
+    // openSettingsBtn.title = ''; // Remove native title
+    attachTooltip(openSettingsBtn, 'Settings');
     openSettingsBtn.addEventListener('click', async () => {
         const isHidden = settingsPanel.classList.contains('hidden');
         if (isHidden) {
@@ -24,6 +26,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Reset settings
+    // resetSettingsBtn.title = ''; // Remove native title
+    attachTooltip(resetSettingsBtn, 'Reset to Default');
     resetSettingsBtn.addEventListener('click', () => {
         parentFolderInput.value = 'Bookmarks bar/'; // Reset to default
     });
@@ -43,6 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // New Window Placeholder
+    // newWindowBtn.title = ''; // Remove native title
+    attachTooltip(newWindowBtn, 'New Window');
     newWindowBtn.addEventListener('click', () => {
         createPlaceholderWindow();
     });
@@ -163,79 +169,11 @@ async function renderWindows() {
             });
 
             // Hover effects
-            tabItem.addEventListener('mouseenter', () => {
-                // Reset content
-                globalTooltip.innerHTML = '';
-                const span = document.createElement('span');
-                span.className = 'tooltip-text';
-                span.textContent = tab.title;
-                globalTooltip.appendChild(span);
-                
-                globalTooltip.style.display = 'block';
-                
-                // Position above the window card
-                const card = windowCard;
-                const cardRect = card.getBoundingClientRect();
-                
-                // Calculate position relative to document
-                const scrollY = window.scrollY;
-                const scrollX = window.scrollX;
-                const viewportWidth = window.innerWidth;
-
-                // Allow natural width but max out at viewport width - padding
-                globalTooltip.style.width = 'auto';
-                globalTooltip.style.maxWidth = `${viewportWidth - 24}px`; // 24px total padding/margin safety
-                
-                // Check for overflow
-                const textWidth = span.scrollWidth;
-                const tooltipClientWidth = globalTooltip.clientWidth; // This will be <= max-width
-                
-                // We compare with a small buffer to avoid subpixel issues
-                if (textWidth > tooltipClientWidth) {
-                    const offset = tooltipClientWidth - textWidth - 24; // Extra buffer for marquee to scroll fully
-                    span.style.setProperty('--scroll-offset', `${offset}px`);
-                    
-                    // Calculate duration based on speed (pixels per second)
-                    // "Edge of speed humans can read" -> let's try ~150px/s
-                    const speed = 150; 
-                    const duration = Math.abs(offset) / speed;
-                    span.style.setProperty('--marquee-duration', `${Math.max(duration, 0.5)}s`);
-                    
-                    span.classList.add('marquee');
-                } else {
-                    span.classList.remove('marquee');
-                    span.style.removeProperty('--scroll-offset');
-                    span.style.removeProperty('--marquee-duration');
-                }
-
-                const tooltipRect = globalTooltip.getBoundingClientRect();
-                
-                // Calculate Top
-                let top = cardRect.top + scrollY - tooltipRect.height - 4;
-                
-                // Calculate Left - align with card, but clamp to viewport
-                let left = cardRect.left + scrollX;
-                
-                // Clamp right edge
-                if (left + tooltipRect.width > viewportWidth - 12) {
-                    left = viewportWidth - tooltipRect.width - 12;
-                }
-                // Clamp left edge
-                if (left < 12) {
-                    left = 12;
-                }
-
-                globalTooltip.style.top = `${top}px`;
-                globalTooltip.style.left = `${left}px`;
-
+            attachTooltip(tabItem, tab.title, windowCard, () => {
                 if (urlCounts.get(tab.url) > 1) {
                     highlightDuplicates(tab.url, true);
                 }
-            });
-
-            tabItem.addEventListener('mouseleave', () => {
-                globalTooltip.style.display = 'none';
-                
+            }, () => {
                 if (urlCounts.get(tab.url) > 1) {
                     highlightDuplicates(tab.url, false);
                 }
@@ -249,15 +187,16 @@ async function renderWindows() {
         // Save Button
         const saveBtn = document.createElement('button');
         saveBtn.className = 'action-btn save';
-        saveBtn.title = 'Save Group';
+        // saveBtn.title = 'Save Group'; // Removed title
         saveBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
         saveBtn.addEventListener('click', () => openSaveModal(win));
+        attachTooltip(saveBtn, 'Save Group', windowCard);
         windowCard.appendChild(saveBtn);
 
         // Sync Button (Save +)
         const syncBtn = document.createElement('button');
         syncBtn.className = 'action-btn sync';
-        syncBtn.title = 'Sync to Folder';
+        // syncBtn.title = 'Sync to Folder'; // Removed title
         // Folder icon with plus
         syncBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>`;
         syncBtn.addEventListener('click', async () => {
@@ -296,12 +235,13 @@ async function renderWindows() {
                 }
             }, 'Sync to Folder');
         });
+        attachTooltip(syncBtn, 'Sync to Folder', windowCard);
         windowCard.appendChild(syncBtn);
 
         // Close Button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'action-btn close';
-        closeBtn.title = 'Close Window';
+        // closeBtn.title = 'Close Window'; // Removed title
         closeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
         closeBtn.addEventListener('click', () => {
             if (confirm('Are you sure you want to close this window?')) {
@@ -309,6 +249,7 @@ async function renderWindows() {
                 windowCard.remove();
             }
         });
+        attachTooltip(closeBtn, 'Close Window', windowCard);
         windowCard.appendChild(closeBtn);
 
         windowsContainer.appendChild(windowCard);
@@ -345,7 +286,7 @@ function showContextMenu(x, y, tabId, windowId) {
     // Add to Folder Button (+)
     const addBtn = document.createElement('button');
     addBtn.className = 'context-menu-btn add';
-    addBtn.title = 'Add to Folder';
+    // addBtn.title = 'Add to Folder'; // Removed title
     addBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>`;
     addBtn.addEventListener('click', async () => {
         closeContextMenu(); // Close menu first
@@ -372,12 +313,13 @@ function showContextMenu(x, y, tabId, windowId) {
             }
         }, 'Bookmark Tab');
     });
+    attachTooltip(addBtn, 'Add to Folder');
     menu.appendChild(addBtn);
 
     // Delete Button (Trash)
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'context-menu-btn delete';
-    deleteBtn.title = 'Close Tab';
+    // deleteBtn.title = 'Close Tab'; // Removed title
     deleteBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
     deleteBtn.addEventListener('click', async () => {
         try {
@@ -388,17 +330,18 @@ function showContextMenu(x, y, tabId, windowId) {
             console.error('Failed to close tab:', err);
         }
     });
+    attachTooltip(deleteBtn, 'Close Tab');
+    menu.appendChild(deleteBtn);
 
     // Dismiss Button (X)
     const dismissBtn = document.createElement('button');
     dismissBtn.className = 'context-menu-btn';
-    dismissBtn.title = 'Dismiss';
+    // dismissBtn.title = 'Dismiss'; // Removed title
     dismissBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
     dismissBtn.addEventListener('click', () => {
         closeContextMenu();
     });
-
-    menu.appendChild(deleteBtn);
+    attachTooltip(dismissBtn, 'Dismiss');
     menu.appendChild(dismissBtn);
     document.body.appendChild(menu);
     activeContextMenu = menu;
@@ -757,5 +700,87 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder') {
             onSelect(folderId);
             modal.remove();
         });
+    });
+}
+
+// Tooltip Helper
+function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
+    // If no reference element provided, use the element itself
+    const refEl = referenceElement || element;
+    const globalTooltip = document.getElementById('global-tooltip');
+
+    element.addEventListener('mouseenter', () => {
+        // Callback
+        if (onEnter) onEnter();
+
+        // Reset content
+        globalTooltip.innerHTML = '';
+        const span = document.createElement('span');
+        span.className = 'tooltip-text';
+        span.textContent = text;
+        globalTooltip.appendChild(span);
+        
+        globalTooltip.style.display = 'block';
+        
+        // Position logic
+        const refRect = refEl.getBoundingClientRect();
+        
+        // Calculate position relative to document
+        const scrollY = window.scrollY;
+        const scrollX = window.scrollX;
+        const viewportWidth = window.innerWidth;
+
+        // Allow natural width but max out at viewport width - padding
+        globalTooltip.style.width = 'auto';
+        globalTooltip.style.maxWidth = `${viewportWidth - 24}px`; // 24px total padding/margin safety
+        
+        // Check for overflow
+        const textWidth = span.scrollWidth;
+        const tooltipClientWidth = globalTooltip.clientWidth; 
+        
+        if (textWidth > tooltipClientWidth) {
+            const offset = tooltipClientWidth - textWidth - 24; 
+            span.style.setProperty('--scroll-offset', `${offset}px`);
+            
+            const speed = 150; 
+            const duration = Math.abs(offset) / speed;
+            span.style.setProperty('--marquee-duration', `${Math.max(duration, 0.5)}s`);
+            
+            span.classList.add('marquee');
+        } else {
+            span.classList.remove('marquee');
+            span.style.removeProperty('--scroll-offset');
+            span.style.removeProperty('--marquee-duration');
+        }
+
+        const tooltipRect = globalTooltip.getBoundingClientRect();
+        
+        // Calculate Top - Default to above
+        let top = refRect.top + scrollY - tooltipRect.height - 4;
+        
+        // If it goes off top, put it below
+        if (top < scrollY) {
+             top = refRect.bottom + scrollY + 4;
+        }
+
+        // Calculate Left - align with ref, but clamp to viewport
+        let left = refRect.left + scrollX;
+        
+        // Clamp right edge
+        if (left + tooltipRect.width > viewportWidth - 12) {
+            left = viewportWidth - tooltipRect.width - 12;
+        }
+        // Clamp left edge
+        if (left < 12) {
+            left = 12;
+        }
+
+        globalTooltip.style.top = `${top}px`;
+        globalTooltip.style.left = `${left}px`;
+    });
+
+    element.addEventListener('mouseleave', () => {
+        globalTooltip.style.display = 'none';
+        if (onLeave) onLeave();
     });
 }
