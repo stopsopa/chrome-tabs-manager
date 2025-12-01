@@ -745,12 +745,28 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
             const extraClass = isBestMatch ? 'best-match' : '';
             const badge = isBestMatch ? `<span class="match-badge">Best Match ${matchCount}/${totalCount}</span>` : '';
             
+            // Parse Title
+            let datePart = '';
+            let namePart = folder.title;
+            
+            // Regex for YYYY_MM_DD_
+            const dateRegex = /^(\d{4}_\d{2}_\d{2})_(.*)$/;
+            const match = folder.title.match(dateRegex);
+            
+            if (match) {
+                datePart = match[1];
+                namePart = match[2];
+            }
+
             folderListHtml += `
                 <div class="folder-item ${extraClass}" data-id="${folder.id}">
                     <span class="folder-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </span>
-                    <span class="folder-name">${folder.title}</span>
+                    <div class="folder-info">
+                        <span class="folder-name">${namePart}</span>
+                        ${datePart ? `<span class="folder-date">${datePart}</span>` : ''}
+                    </div>
                     ${badge}
                 </div>
             `;
