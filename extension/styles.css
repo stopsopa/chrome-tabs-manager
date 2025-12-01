@@ -448,3 +448,63 @@ header {
     font-size: 12px;
     align-self: flex-start;
 }
+
+/* Folder Selection Modal */
+.folder-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.folder-item {
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    transition: background-color 0.2s;
+    border: 1px solid transparent;
+}
+
+.folder-item:hover {
+    background-color: rgba(0,0,0,0.05);
+    border-color: var(--border-color);
+}
+
+.folder-icon {
+    color: var(--accent-color);
+}
+
+.folder-name {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.no-folders {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 12px;
+    font-size: 13px;
+}
+
+/* New Action Buttons */
+.action-btn.sync {
+    color: var(--success-color);
+}
+
+.action-btn.sync:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+.context-menu-btn.add {
+    color: var(--success-color);
+}
+
+.context-menu-btn.add:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+}

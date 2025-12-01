@@ -254,6 +254,50 @@ async function renderWindows() {
         saveBtn.addEventListener('click', () => openSaveModal(win));
         windowCard.appendChild(saveBtn);
 
+        // Sync Button (Save +)
+        const syncBtn = document.createElement('button');
+        syncBtn.className = 'action-btn sync';
+        syncBtn.title = 'Sync to Folder';
+        // Folder icon with plus
+        syncBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>`;
+        syncBtn.addEventListener('click', async () => {
+            const settings = await chrome.storage.sync.get(['parentFolder']);
+            const parentPath = settings.parentFolder || 'Bookmarks bar/';
+            const folders = await getSubfolders(parentPath);
+            
+            showFolderSelectionModal(folders, async (folderId) => {
+                // Sync Logic
+                try {
+                    const existingBookmarks = await chrome.bookmarks.getChildren(folderId);
+                    const existingUrls = new Set(existingBookmarks.map(b => b.url));
+                    
+                    let addedCount = 0;
+                    for (const tab of win.tabs) {
+                        if (!existingUrls.has(tab.url)) {
+                            await chrome.bookmarks.create({
+                                parentId: folderId,
+                                title: tab.title,
+                                url: tab.url
+                            });
+                            addedCount++;
+                        }
+                    }
+                    
+                    // Visual feedback
+                    const originalHtml = syncBtn.innerHTML;
+                    syncBtn.innerHTML = `<span style="font-size:10px; font-weight:bold;">+${addedCount}</span>`;
+                    setTimeout(() => {
+                        syncBtn.innerHTML = originalHtml;
+                    }, 1500);
+                    
+                } catch (err) {
+                    console.error('Sync failed:', err);
+                    alert('Sync failed: ' + err.message);
+                }
+            }, 'Sync to Folder');
+        });
+        windowCard.appendChild(syncBtn);
+
         // Close Button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'action-btn close';
@@ -297,6 +341,38 @@ function showContextMenu(x, y, tabId, windowId) {
     menu.className = 'context-menu';
     menu.style.left = `${x}px`;
     menu.style.top = `${y}px`;
+
+    // Add to Folder Button (+)
+    const addBtn = document.createElement('button');
+    addBtn.className = 'context-menu-btn add';
+    addBtn.title = 'Add to Folder';
+    addBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>`;
+    addBtn.addEventListener('click', async () => {
+        closeContextMenu(); // Close menu first
+        
+        const settings = await chrome.storage.sync.get(['parentFolder']);
+        const parentPath = settings.parentFolder || 'Bookmarks bar/';
+        const folders = await getSubfolders(parentPath);
+        
+        // We need the tab details. We have tabId.
+        const tab = await chrome.tabs.get(tabId);
+        
+        showFolderSelectionModal(folders, async (folderId) => {
+            try {
+                await chrome.bookmarks.create({
+                    parentId: folderId,
+                    title: tab.title,
+                    url: tab.url
+                });
+                // No visual feedback needed for context menu action usually, or maybe a small toast?
+                // For now, silent success is fine.
+            } catch (err) {
+                console.error('Failed to bookmark tab:', err);
+                alert('Failed to bookmark: ' + err.message);
+            }
+        }, 'Bookmark Tab');
+    });
+    menu.appendChild(addBtn);
 
     // Delete Button (Trash)
     const deleteBtn = document.createElement('button');
@@ -617,4 +693,69 @@ async function findOrCreateFolderByPath(path) {
     }
     
     return parentId;
+}
+
+// Helper to get subfolders of a parent folder (by path)
+async function getSubfolders(parentPath) {
+    try {
+        const parentId = await findOrCreateFolderByPath(parentPath);
+        const children = await chrome.bookmarks.getChildren(parentId);
+        return children.filter(node => !node.url); // Only folders
+    } catch (err) {
+        console.error('Error fetching subfolders:', err);
+        return [];
+    }
+}
+
+// Folder Selection Modal
+function showFolderSelectionModal(folders, onSelect, title = 'Select Folder') {
+    // Create modal if not exists (reuse save-modal structure but different content)
+    let modal = document.getElementById('folder-modal');
+    if (modal) modal.remove(); // Re-create to ensure clean state
+
+    modal = document.createElement('div');
+    modal.id = 'folder-modal';
+    modal.className = 'modal visible'; // Immediately visible
+    
+    let folderListHtml = '';
+    if (folders.length === 0) {
+        folderListHtml = '<div class="no-folders">No subfolders found in parent path.</div>';
+    } else {
+        folderListHtml = '<div class="folder-list">';
+        folders.forEach(folder => {
+            folderListHtml += `
+                <div class="folder-item" data-id="${folder.id}">
+                    <span class="folder-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    </span>
+                    <span class="folder-name">${folder.title}</span>
+                </div>
+            `;
+        });
+        folderListHtml += '</div>';
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3 class="modal-title">${title}</h3>
+            ${folderListHtml}
+            <div class="modal-actions">
+                <button id="cancel-folder" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Event listeners
+    document.getElementById('cancel-folder').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    modal.querySelectorAll('.folder-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const folderId = item.dataset.id;
+            onSelect(folderId);
+            modal.remove();
+        });
+    });
 }
