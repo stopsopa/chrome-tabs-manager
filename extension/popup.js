@@ -61,6 +61,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         const query = e.target.value.toLowerCase();
         filterTabs(query);
     });
+
+    // --- Resizable Popup Logic ---
+    const appContainer = document.querySelector('.app-container');
+    
+    // Restore size
+    const stored = await chrome.storage.local.get(['popupWidth', 'popupHeight']);
+    if (stored.popupWidth && stored.popupHeight) {
+        let width = parseFloat(stored.popupWidth);
+        let height = parseFloat(stored.popupHeight);
+        
+        // Safety Check: Clamp to available screen size
+        // We leave some buffer (e.g. 50px) to ensure handle is visible
+        const maxWidth = window.screen.availWidth - 50;
+        const maxHeight = window.screen.availHeight - 50;
+        const minWidth = 320;
+        const minHeight = 400;
+        
+        if (width > maxWidth) width = maxWidth;
+        if (height > maxHeight) height = maxHeight;
+        if (width < minWidth) width = minWidth;
+        if (height < minHeight) height = minHeight;
+        
+        appContainer.style.width = `${width}px`;
+        appContainer.style.height = `${height}px`;
+    }
+
+    // Save size on resize
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            const width = entry.contentRect.width;
+            const height = entry.contentRect.height;
+            
+            // Debounce saving slightly or just save (chrome.storage is async but fast enough for this)
+            // We use contentRect, but we might want to save style.width if set, 
+            // but ResizeObserver gives us the actual rendered size which is good.
+            // However, to restore it we set style.width.
+            // Let's save the style values if possible, or just the rect.
+            // Actually, entry.contentRect doesn't include padding/border if box-sizing is border-box?
+            // Let's just use the element's offsetWidth/Height to be safe for restoration.
+            
+            chrome.storage.local.set({
+                popupWidth: appContainer.style.width || width, // Prefer style if set (user resized)
+                popupHeight: appContainer.style.height || height
+            });
+        }
+    });
+    resizeObserver.observe(appContainer);
 });
 
 async function renderWindows() {
