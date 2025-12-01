@@ -728,12 +728,18 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
     modal.id = 'folder-modal';
     modal.className = 'modal visible'; // Immediately visible
     
-    // Sort folders: Best match first, then alphabetical
-    const sortedFolders = [...folders].sort((a, b) => {
-        if (a.id === bestMatchId) return -1;
-        if (b.id === bestMatchId) return 1;
-        return a.title.localeCompare(b.title);
-    });
+    // Determine if we have a valid match to highlight
+    const hasMatch = bestMatchId && matchCount > 0;
+
+    // Sort folders: If match found, put it first, then alphabetical. Otherwise natural order.
+    let sortedFolders = [...folders];
+    if (hasMatch) {
+        sortedFolders.sort((a, b) => {
+            if (a.id === bestMatchId) return -1;
+            if (b.id === bestMatchId) return 1;
+            return a.title.localeCompare(b.title);
+        });
+    }
 
     let folderListHtml = '';
     if (sortedFolders.length === 0) {
@@ -741,7 +747,7 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
     } else {
         folderListHtml = '<div class="folder-list">';
         sortedFolders.forEach(folder => {
-            const isBestMatch = folder.id === bestMatchId;
+            const isBestMatch = hasMatch && folder.id === bestMatchId;
             const extraClass = isBestMatch ? 'best-match' : '';
             const badge = isBestMatch ? `<span class="match-badge">Best Match ${matchCount}/${totalCount}</span>` : '';
             
