@@ -505,8 +505,8 @@ async function saveWindowTabs(windowObj, name, shouldClose = true) {
     const folderName = `${dateStr}_${name}`;
 
     try {
-        // Use the user's configured parent folder path, or default to "Bookmarks bar"
-        const targetPath = settings.parentFolder || 'Bookmarks bar';
+        // Use the user's configured parent folder path, or default to "Bookmarks bar/"
+        const targetPath = settings.parentFolder !== undefined ? settings.parentFolder : 'Bookmarks bar/';
         
         const parentId = await findOrCreateFolderByPath(targetPath);
         
