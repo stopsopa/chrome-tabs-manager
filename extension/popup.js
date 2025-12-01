@@ -875,6 +875,13 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
         modal.remove();
     });
 
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+
     modal.querySelectorAll('.folder-item').forEach(item => {
         item.addEventListener('click', () => {
             const folderId = item.dataset.id;
