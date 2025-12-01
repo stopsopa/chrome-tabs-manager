@@ -424,7 +424,7 @@ function filterTabs(query) {
 }
 
 // Modal Logic
-function openSaveModal(windowObj) {
+async function openSaveModal(windowObj) {
     // Create modal if not exists
     let modal = document.getElementById('save-modal');
     if (!modal) {
@@ -435,9 +435,9 @@ function openSaveModal(windowObj) {
             <div class="modal-content">
                 <h3 class="modal-title">Save Window Tabs</h3>
                 <input type="text" id="group-name-input" class="modal-input" placeholder="Enter group name (e.g. AI Training)">
-                <div style="margin: 12px 0; display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="close-window-checkbox" checked>
-                    <label for="close-window-checkbox" style="font-size: 13px; color: var(--text-primary); cursor: pointer;">Close window after saving</label>
+                <div class="modal-checkbox-wrapper">
+                    <input type="checkbox" id="close-window-checkbox">
+                    <label for="close-window-checkbox">Close window after saving</label>
                 </div>
                 <div class="modal-actions">
                     <button id="cancel-save" class="btn btn-secondary">Cancel</button>
@@ -456,7 +456,15 @@ function openSaveModal(windowObj) {
     const input = document.getElementById('group-name-input');
     const checkbox = document.getElementById('close-window-checkbox');
     input.value = '';
-    checkbox.checked = true; // Default to true
+    
+    // Load saved preference for checkbox, default to false (unticked)
+    const settings = await chrome.storage.sync.get(['closeWindowAfterSave']);
+    checkbox.checked = settings.closeWindowAfterSave === true; // Strict check for true, otherwise false
+    
+    // Save preference on change
+    checkbox.addEventListener('change', () => {
+        chrome.storage.sync.set({ closeWindowAfterSave: checkbox.checked });
+    });
     
     // Remove old listener to avoid duplicates
     const confirmBtn = document.getElementById('confirm-save');
@@ -467,6 +475,9 @@ function openSaveModal(windowObj) {
         const name = input.value.trim();
         const shouldClose = checkbox.checked;
         if (!name) return;
+        
+        // Save preference again just in case (though change listener handles it)
+        await chrome.storage.sync.set({ closeWindowAfterSave: shouldClose });
         
         await saveWindowTabs(windowObj, name, shouldClose);
         modal.classList.remove('visible');

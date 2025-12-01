@@ -340,6 +340,27 @@ header {
     font-size: 13px;
 }
 
+.modal-checkbox-wrapper {
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.modal-checkbox-wrapper input[type="checkbox"] {
+    accent-color: var(--accent-color);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.modal-checkbox-wrapper label {
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
