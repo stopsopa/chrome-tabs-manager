@@ -327,6 +327,62 @@ async function renderWindows() {
         attachTooltip(syncBtn, 'Sync to Folder', windowCard);
         windowCard.appendChild(syncBtn);
 
+        // Override Button (Replace)
+        const overrideBtn = document.createElement('button');
+        overrideBtn.className = 'action-btn override';
+        overrideBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`;
+        overrideBtn.addEventListener('click', async () => {
+            const settings = await chrome.storage.sync.get(['parentFolder']);
+            const parentPath = settings.parentFolder || 'Bookmarks bar/';
+            const folders = await getSubfolders(parentPath);
+            
+            const { folder: bestMatch, matchCount } = await findBestMatchFolder(win.tabs, folders);
+            const bestMatchId = bestMatch ? bestMatch.id : null;
+            const totalTabs = win.tabs.length;
+
+            showFolderSelectionModal(folders, async (folderId) => {
+                try {
+                    // Get existing bookmarks to show in confirmation
+                    const existingBookmarks = await chrome.bookmarks.getChildren(folderId);
+                    
+                    // Filter out bookmarks that are also in the current window (will be re-saved)
+                    const currentWindowUrls = new Set(win.tabs.map(t => t.url));
+                    const bookmarksToWarnAbout = existingBookmarks.filter(b => !currentWindowUrls.has(b.url));
+
+                    const confirmed = await showOverrideConfirmModal(bookmarksToWarnAbout, folderId);
+                    if (confirmed) {
+                        // Delete all existing
+                        for (const bookmark of existingBookmarks) {
+                            await chrome.bookmarks.remove(bookmark.id);
+                        }
+
+                        // Add new ones
+                        let addedCount = 0;
+                        for (const tab of win.tabs) {
+                            await chrome.bookmarks.create({
+                                parentId: folderId,
+                                title: tab.title,
+                                url: tab.url
+                            });
+                            addedCount++;
+                        }
+
+                        // Visual feedback
+                        const originalHtml = overrideBtn.innerHTML;
+                        overrideBtn.innerHTML = `<span style="font-size:10px; font-weight:bold;">✓</span>`;
+                        setTimeout(() => {
+                            overrideBtn.innerHTML = originalHtml;
+                        }, 1500);
+                    }
+                } catch (err) {
+                    console.error('Override failed:', err);
+                    alert('Override failed: ' + err.message);
+                }
+            }, 'Override Folder', bestMatchId, matchCount, totalTabs);
+        });
+        attachTooltip(overrideBtn, 'Override Folder', windowCard);
+        windowCard.appendChild(overrideBtn);
+
         // Close Button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'action-btn close';
@@ -1032,6 +1088,66 @@ function showConfirmModal(message) {
         });
 
         // Close on click outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                cleanup();
+                resolve(false);
+            }
+        });
+    });
+}
+
+// Override Confirmation Modal
+function showOverrideConfirmModal(bookmarksToRemove, folderId) {
+    return new Promise((resolve) => {
+        let modal = document.getElementById('override-confirm-modal');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'override-confirm-modal';
+        modal.className = 'modal visible';
+
+        let listHtml = '';
+        if (bookmarksToRemove.length > 0) {
+            listHtml = '<div class="modal-list">';
+            bookmarksToRemove.forEach(b => {
+                listHtml += `<div class="modal-list-item" title="${b.title}">${b.title}</div>`;
+            });
+            listHtml += '</div>';
+        } else {
+            listHtml = '<div class="modal-message">Folder is empty.</div>';
+        }
+
+        modal.innerHTML = `
+            <div class="modal-content" style="width: 320px;">
+                <h3 class="modal-title">Confirm Override</h3>
+                <div class="modal-message">
+                    Are you sure you want to override this folder?<br>
+                    <strong>${bookmarksToRemove.length} items will be permanently deleted:</strong>
+                </div>
+                ${listHtml}
+                <div class="modal-actions">
+                    <button id="override-cancel" class="btn btn-secondary">Cancel</button>
+                    <button id="override-confirm" class="btn btn-primary" style="background-color: var(--danger-color);">Override</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const cleanup = () => {
+            modal.remove();
+        };
+
+        document.getElementById('override-cancel').addEventListener('click', () => {
+            cleanup();
+            resolve(false);
+        });
+
+        document.getElementById('override-confirm').addEventListener('click', () => {
+            cleanup();
+            resolve(true);
+        });
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 cleanup();
