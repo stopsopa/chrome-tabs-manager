@@ -351,19 +351,26 @@ async function renderWindows() {
                     } else {
                         message = `None of the tabs in this window are saved in any folder under "${parentPath}".\n\nIt would be nice to save first.\n\nAre you sure you want to close?`;
                     }
+
+                    const confirmed = await showConfirmModal(message);
+                    if (confirmed) {
+                        chrome.windows.remove(win.id);
+                        windowCard.remove();
+                    }
                 } else {
-                    message = 'All tabs are safely saved. Close window?';
+                    // All tabs are safely saved. Close window immediately.
+                    chrome.windows.remove(win.id);
+                    windowCard.remove();
                 }
 
             } catch (err) {
                 console.error('Smart check failed:', err);
                 // Fallback to generic message
-            }
-
-            const confirmed = await showConfirmModal(message);
-            if (confirmed) {
-                chrome.windows.remove(win.id);
-                windowCard.remove();
+                const confirmed = await showConfirmModal(message);
+                if (confirmed) {
+                    chrome.windows.remove(win.id);
+                    windowCard.remove();
+                }
             }
         });
         attachTooltip(closeBtn, 'Close Window', windowCard);
