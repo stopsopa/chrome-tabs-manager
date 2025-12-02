@@ -154,33 +154,8 @@ async function renderWindows() {
         windowCard.dataset.windowId = win.id;
 
         // Calculate Saved Status
-        const { folder: bestMatch, matchCount, fullySaved, savedUrls } = await findBestMatchFolder(win.tabs, subfolders);
-        const totalTabs = win.tabs.length;
-        
-        if (matchCount > 0) {
-            let label = `${matchCount}/${totalTabs}`;
-            
-            if (bestMatch) {
-                let namePart = bestMatch.title;
-                const dateRegex = /^(\d{4}_\d{2}_\d{2})_(.*)$/;
-                const match = bestMatch.title.match(dateRegex);
-                if (match) {
-                    namePart = match[2];
-                }
-                // Truncate if too long (optional, but good for badges)
-                if (namePart.length > 15) {
-                    namePart = namePart.substring(0, 12) + '...';
-                }
-                label = `${namePart} ${label}`;
-            }
-
-            windowCard.dataset.matchLabel = label;
-            if (fullySaved) {
-                windowCard.classList.add('fully-saved');
-            } else {
-                windowCard.classList.add('partially-saved');
-            }
-        }
+        // Calculate Saved Status
+        const { matchCount, savedUrls } = await updateWindowBadge(windowCard, win.tabs, subfolders);
 
         // Drag and Drop: Window Card as Drop Target
         windowCard.addEventListener('dragover', (e) => {
@@ -243,6 +218,14 @@ async function renderWindows() {
                 tabItem.classList.add('duplicate');
             }
 
+            // Check for unsaved status (only if there is a partial match)
+            // We need to re-calculate match info or pass it down. 
+            // For efficiency, let's just re-check if it's in the saved set if we had one.
+            // But wait, we just called updateWindowBadge which doesn't return the set.
+            // Let's modify updateWindowBadge to return the info or just re-fetch here?
+            // Actually, for the individual tab 'unsaved' class, we need to know if THIS tab is saved.
+            // Let's just call findBestMatchFolder again or rely on a property we set on the card?
+            // For now, let's re-fetch for simplicity as it's fast enough.
             // Check for unsaved status (only if there is a partial match)
             if (matchCount > 0 && savedUrls && savedUrls.size > 0 && !savedUrls.has(tab.url)) {
                 tabItem.classList.add('unsaved');
@@ -389,6 +372,17 @@ async function renderWindows() {
                                 tabItem.classList.add('unsaved');
                             }
                         });
+
+                        // Update badges for ALL windows
+                        const allWindows = await chrome.windows.getAll({ populate: true });
+                        const allSubfolders = await getSubfolders(parentPath); // Refresh subfolders just in case
+                        
+                        for (const w of allWindows) {
+                            const card = document.querySelector(`.window-card[data-window-id="${w.id}"]`);
+                            if (card) {
+                                await updateWindowBadge(card, w.tabs, allSubfolders);
+                            }
+                        }
 
                         // Visual feedback
                         const originalHtml = overrideBtn.innerHTML;
@@ -1192,4 +1186,41 @@ function showOverrideConfirmModal(bookmarksToRemove, folderId) {
             }
         });
     });
+}
+// Helper to update window badge
+async function updateWindowBadge(windowCard, tabs, subfolders) {
+    const result = await findBestMatchFolder(tabs, subfolders);
+    const { folder: bestMatch, matchCount, fullySaved } = result;
+    const totalTabs = tabs.length;
+    
+    // Reset classes and attribute
+    windowCard.classList.remove('fully-saved', 'partially-saved');
+    windowCard.removeAttribute('data-match-label');
+
+    if (matchCount > 0) {
+        let label = `${matchCount}/${totalTabs}`;
+        
+        if (bestMatch) {
+            let namePart = bestMatch.title;
+            const dateRegex = /^(\d{4}_\d{2}_\d{2})_(.*)$/;
+            const match = bestMatch.title.match(dateRegex);
+            if (match) {
+                namePart = match[2];
+            }
+            // Truncate if too long (optional, but good for badges)
+            if (namePart.length > 15) {
+                namePart = namePart.substring(0, 12) + '...';
+            }
+            label = `${namePart} ${label}`;
+        }
+
+        windowCard.dataset.matchLabel = label;
+        if (fullySaved) {
+            windowCard.classList.add('fully-saved');
+        } else {
+            windowCard.classList.add('partially-saved');
+        }
+    }
+    
+    return result;
 }
