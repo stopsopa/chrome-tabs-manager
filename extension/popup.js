@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const windowsContainer = document.getElementById('windows-container');
     const searchInput = document.getElementById('search-input');
     const openSettingsBtn = document.getElementById('open-settings');
+    const dismissPopupBtn = document.getElementById('dismiss-popup');
     const newWindowBtn = document.getElementById('new-window');
 
     const settingsPanel = document.getElementById('settings-panel');
@@ -23,6 +24,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             settingsPanel.classList.add('hidden');
         }
+    });
+
+    // Dismiss Popup
+    // dismissPopupBtn.title = ''; // Remove native title
+    attachTooltip(dismissPopupBtn, 'Dismiss');
+    dismissPopupBtn.addEventListener('click', () => {
+        window.close();
     });
 
     // Reset settings
@@ -367,6 +375,21 @@ async function renderWindows() {
                             addedCount++;
                         }
 
+                        // Verify sync status
+                        const updatedBookmarks = await chrome.bookmarks.getChildren(folderId);
+                        const updatedUrls = new Set(updatedBookmarks.map(b => b.url));
+                        
+                        // Update UI based on verification
+                        const tabsInCard = windowCard.querySelectorAll('.tab-item');
+                        tabsInCard.forEach(tabItem => {
+                            const url = tabItem.dataset.url;
+                            if (updatedUrls.has(url)) {
+                                tabItem.classList.remove('unsaved');
+                            } else {
+                                tabItem.classList.add('unsaved');
+                            }
+                        });
+
                         // Visual feedback
                         const originalHtml = overrideBtn.innerHTML;
                         overrideBtn.innerHTML = `<span style="font-size:10px; font-weight:bold;">✓</span>`;
@@ -547,10 +570,24 @@ function createPlaceholderWindow() {
     placeholderCard.style.borderStyle = 'dashed';
     placeholderCard.style.opacity = '0.7';
     placeholderCard.style.minHeight = '100px';
-    placeholderCard.style.display = 'flex';
-    placeholderCard.style.alignItems = 'center';
     placeholderCard.style.justifyContent = 'center';
-    placeholderCard.innerHTML = '<span style="color: var(--text-secondary); font-size: 12px;">Drop tab here to create window</span>';
+    placeholderCard.style.position = 'relative'; // For absolute positioning of close button
+    placeholderCard.innerHTML = `
+        <span style="color: var(--text-secondary); font-size: 12px;">Drop tab here to create window</span>
+        <button class="action-btn close-placeholder" style="position: absolute; top: 5px; right: 5px; background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    `;
+
+    // Dismiss Button Logic
+    const closeBtn = placeholderCard.querySelector('.close-placeholder');
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent drag events if any
+        placeholderCard.remove();
+    });
 
     // Drag and Drop Handlers
     placeholderCard.addEventListener('dragover', (e) => {
