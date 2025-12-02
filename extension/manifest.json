@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chrome Tabs Manager",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Organize tabs by window, highlight duplicates, and save groups to bookmarks.",
   "permissions": ["tabs", "windows", "bookmarks", "storage", "favicon"],
   "action": {
