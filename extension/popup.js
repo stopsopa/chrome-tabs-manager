@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveSettingsBtn = document.getElementById('save-settings');
     const resetSettingsBtn = document.getElementById('reset-settings');
 
+    // Keyboard Shortcut Info
+    const shortcutInfo = document.getElementById('shortcut-info');
+    chrome.runtime.getPlatformInfo((info) => {
+        const isMac = info.os === 'mac';
+        if (isMac) {
+            shortcutInfo.textContent = '⇧⌘T';
+            attachTooltip(shortcutInfo, 'Reopen Closed Tab', null, null, null, 'Shift+Cmd+T');
+        } else {
+            shortcutInfo.textContent = 'Ctrl+⇧+T';
+            attachTooltip(shortcutInfo, 'Reopen Closed Tab', null, null, null, 'Ctrl+Shift+T');
+        }
+    });
+
     // Toggle settings panel
     // openSettingsBtn.title = ''; // Remove native title
     attachTooltip(openSettingsBtn, 'Settings');
@@ -60,6 +73,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     newWindowBtn.addEventListener('click', () => {
         createPlaceholderWindow();
     });
+
+    // Create Global Tooltip
+    let globalTooltip = document.getElementById('global-tooltip');
+    if (!globalTooltip) {
+        globalTooltip = document.createElement('div');
+        globalTooltip.id = 'global-tooltip';
+        globalTooltip.className = 'global-tooltip';
+        document.body.appendChild(globalTooltip);
+    }
 
     // Initial render
     await renderWindows();
@@ -138,14 +160,7 @@ async function renderWindows() {
     const parentPath = settings.parentFolder || 'Bookmarks bar/';
     const subfolders = await getSubfolders(parentPath);
 
-    // Create Global Tooltip
-    let globalTooltip = document.getElementById('global-tooltip');
-    if (!globalTooltip) {
-        globalTooltip = document.createElement('div');
-        globalTooltip.id = 'global-tooltip';
-        globalTooltip.className = 'global-tooltip';
-        document.body.appendChild(globalTooltip);
-    }
+    // Process windows sequentially to allow async match checking
 
     // Process windows sequentially to allow async match checking
     for (const win of windows) {
@@ -1005,9 +1020,11 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
 function attachTooltip(element, text, referenceElement, onEnter, onLeave, subtitle = null) {
     // If no reference element provided, use the element itself
     const refEl = referenceElement || element;
-    const globalTooltip = document.getElementById('global-tooltip');
 
     element.addEventListener('mouseenter', () => {
+        const globalTooltip = document.getElementById('global-tooltip');
+        if (!globalTooltip) return;
+
         // Callback
         if (onEnter) onEnter();
 

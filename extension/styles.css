@@ -79,6 +79,25 @@ header {
   flex-shrink: 0; /* Prevent shrinking */
 }
 
+.shortcut-info {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-right: 4px;
+  font-weight: 500;
+  cursor: help;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 2px 6px;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.shortcut-info:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
 /* h1 removed */
 
 .icon-btn {
