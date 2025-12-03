@@ -244,6 +244,7 @@ async function renderWindows() {
             });
 
             // Hover effects
+            // Hover effects
             attachTooltip(tabItem, tab.title, windowCard, () => {
                 if (urlCounts.get(tab.url) > 1) {
                     highlightDuplicates(tab.url, true);
@@ -252,7 +253,7 @@ async function renderWindows() {
                 if (urlCounts.get(tab.url) > 1) {
                     highlightDuplicates(tab.url, false);
                 }
-            });
+            }, tab.url);
 
             windowCard.appendChild(tabItem);
         });
@@ -265,7 +266,7 @@ async function renderWindows() {
         // saveBtn.title = 'Save Group'; // Removed title
         saveBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
         saveBtn.addEventListener('click', () => openSaveModal(win));
-        attachTooltip(saveBtn, 'Save Group', windowCard);
+        attachTooltip(saveBtn, 'Save Folder', windowCard);
         windowCard.appendChild(saveBtn);
 
         // Sync Button (Save +)
@@ -446,7 +447,7 @@ async function renderWindows() {
                 }
             }
         });
-        attachTooltip(closeBtn, 'Close Window', windowCard);
+        attachTooltip(closeBtn, 'Close Folder', windowCard);
         windowCard.appendChild(closeBtn);
 
         windowsContainer.appendChild(windowCard);
@@ -1001,7 +1002,7 @@ function showFolderSelectionModal(folders, onSelect, title = 'Select Folder', be
 }
 
 // Tooltip Helper
-function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
+function attachTooltip(element, text, referenceElement, onEnter, onLeave, subtitle = null) {
     // If no reference element provided, use the element itself
     const refEl = referenceElement || element;
     const globalTooltip = document.getElementById('global-tooltip');
@@ -1012,12 +1013,22 @@ function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
 
         // Reset content
         globalTooltip.innerHTML = '';
-        const span = document.createElement('span');
-        span.className = 'tooltip-text';
-        span.textContent = text;
-        globalTooltip.appendChild(span);
         
-        globalTooltip.style.display = 'block';
+        // Title
+        const titleSpan = document.createElement('div');
+        titleSpan.className = 'tooltip-title';
+        titleSpan.textContent = text;
+        globalTooltip.appendChild(titleSpan);
+
+        // Subtitle (URL)
+        if (subtitle) {
+            const subtitleSpan = document.createElement('div');
+            subtitleSpan.className = 'tooltip-subtitle';
+            subtitleSpan.textContent = subtitle;
+            globalTooltip.appendChild(subtitleSpan);
+        }
+        
+        globalTooltip.style.display = 'flex'; // Changed to flex
         
         // Position logic
         const refRect = refEl.getBoundingClientRect();
@@ -1031,25 +1042,9 @@ function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
         globalTooltip.style.width = 'auto';
         globalTooltip.style.maxWidth = `${viewportWidth - 24}px`; // 24px total padding/margin safety
         
-        // Check for overflow
-        const textWidth = span.scrollWidth;
-        const tooltipClientWidth = globalTooltip.clientWidth; 
+        // Marquee logic (simplified for now, applied to title only if needed, or just truncation)
+        // For dual lines, marquee is tricky. Let's stick to ellipsis for now as per CSS.
         
-        if (textWidth > tooltipClientWidth) {
-            const offset = tooltipClientWidth - textWidth - 24; 
-            span.style.setProperty('--scroll-offset', `${offset}px`);
-            
-            const speed = 150; 
-            const duration = Math.abs(offset) / speed;
-            span.style.setProperty('--marquee-duration', `${Math.max(duration, 0.5)}s`);
-            
-            span.classList.add('marquee');
-        } else {
-            span.classList.remove('marquee');
-            span.style.removeProperty('--scroll-offset');
-            span.style.removeProperty('--marquee-duration');
-        }
-
         const tooltipRect = globalTooltip.getBoundingClientRect();
         
         // Calculate Top - Default to above
@@ -1063,6 +1058,11 @@ function attachTooltip(element, text, referenceElement, onEnter, onLeave) {
         // Calculate Left - align with ref, but clamp to viewport
         let left = refRect.left + scrollX;
         
+        // Center horizontally if it's a small element like a button
+        if (refRect.width < 100) {
+             left = refRect.left + scrollX + (refRect.width / 2) - (tooltipRect.width / 2);
+        }
+
         // Clamp right edge
         if (left + tooltipRect.width > viewportWidth - 12) {
             left = viewportWidth - tooltipRect.width - 12;
