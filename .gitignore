@@ -1,6 +1,6 @@
 /libs/
 node_modules
 .env
-xx.cjs
+
 log.log
 *.zip
