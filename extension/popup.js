@@ -1094,7 +1094,10 @@ function attachTooltip(element, text, referenceElement, onEnter, onLeave, subtit
     });
 
     element.addEventListener('mouseleave', () => {
-        globalTooltip.style.display = 'none';
+        const globalTooltip = document.getElementById('global-tooltip');
+        if (globalTooltip) {
+            globalTooltip.style.display = 'none';
+        }
         if (onLeave) onLeave();
     });
 }
