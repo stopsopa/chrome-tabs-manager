@@ -138,7 +138,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     resizeObserver.observe(appContainer);
+
+    // Live Audible Status Update
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        if (changeInfo.audible !== undefined) {
+            updateTabAudibleStatus(tabId, changeInfo.audible);
+        }
+    });
 });
+
+function updateTabAudibleStatus(tabId, isAudible) {
+    const tabItem = document.querySelector(`.tab-item[data-tab-id="${tabId}"]`);
+    if (tabItem) {
+        // Remove existing speaker icon if any
+        const existingIcon = tabItem.querySelector('.speaker-icon');
+        if (existingIcon) {
+            existingIcon.remove();
+        }
+
+        if (isAudible) {
+            const speakerIcon = document.createElement('div');
+            speakerIcon.className = 'speaker-icon';
+            speakerIcon.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+            tabItem.appendChild(speakerIcon);
+            tabItem.classList.add('audible');
+        } else {
+            tabItem.classList.remove('audible');
+        }
+    }
+}
 
 async function renderWindows() {
     const windowsContainer = document.getElementById('windows-container');
@@ -251,6 +279,15 @@ async function renderWindows() {
             img.src = tab.favIconUrl || 'images/icon16.png'; // Fallback
             img.onerror = () => { img.src = 'images/icon16.png'; }; // Handle broken favicons
             tabItem.appendChild(img);
+
+            // Audible Indicator
+            if (tab.audible) {
+                const speakerIcon = document.createElement('div');
+                speakerIcon.className = 'speaker-icon';
+                speakerIcon.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+                tabItem.appendChild(speakerIcon);
+                tabItem.classList.add('audible');
+            }
 
             // Click to switch to tab
             tabItem.addEventListener('click', () => {
