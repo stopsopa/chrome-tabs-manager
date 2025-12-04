@@ -317,6 +317,16 @@ async function renderWindows() {
                             addedCount++;
                         }
                     }
+
+                    // Refresh saved status
+                    const updatedBookmarks = await chrome.bookmarks.getChildren(folderId);
+                    const updatedUrls = new Set(updatedBookmarks.map(b => b.url));
+                    
+                    updateTabStatus(windowCard, updatedUrls);
+                    
+                    // Update window badge
+                    const allSubfolders = await getSubfolders(parentPath);
+                    await updateWindowBadge(windowCard, win.tabs, allSubfolders);
                     
                     // Visual feedback
                     const originalHtml = syncBtn.innerHTML;
@@ -379,15 +389,7 @@ async function renderWindows() {
                         const updatedUrls = new Set(updatedBookmarks.map(b => b.url));
                         
                         // Update UI based on verification
-                        const tabsInCard = windowCard.querySelectorAll('.tab-item');
-                        tabsInCard.forEach(tabItem => {
-                            const url = tabItem.dataset.url;
-                            if (updatedUrls.has(url)) {
-                                tabItem.classList.remove('unsaved');
-                            } else {
-                                tabItem.classList.add('unsaved');
-                            }
-                        });
+                        updateTabStatus(windowCard, updatedUrls);
 
                         // Update badges for ALL windows
                         const allWindows = await chrome.windows.getAll({ populate: true });
@@ -1243,4 +1245,16 @@ async function updateWindowBadge(windowCard, tabs, subfolders) {
     }
     
     return result;
+}
+
+function updateTabStatus(windowCard, savedUrls) {
+    const tabsInCard = windowCard.querySelectorAll('.tab-item');
+    tabsInCard.forEach(tabItem => {
+        const url = tabItem.dataset.url;
+        if (savedUrls.has(url)) {
+            tabItem.classList.remove('unsaved');
+        } else {
+            tabItem.classList.add('unsaved');
+        }
+    });
 }
